@@ -4,57 +4,84 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import PageHeader from '../../components/PageHeader.astro';
 
-const metrics = [
-  { value: '8 线程', label: '并行批量移动' },
-  { value: '10,000+', label: 'SoA 音符阈值' },
-  { value: '< 1ms', label: '目标音频延迟' },
-  { value: 'wgpu', label: '跨平台 GPU 抽象' },
-];
+const audioBackends = ['xsynth — 纯软件 SoundFont 合成', 'KDMAPI — Black MIDI 极限低延迟输出', 'winmm — 系统原生兼容回放'];
+const videoFeatures = ['wgpu GPU 加速绘制管线', 'iced 数据驱动声明式 UI', 'Canvas 自定义钢琴卷帘渲染', '跨平台统一 GPU 抽象'];
 ---
 
 <Layout 
-  title="性能渲染 - Lumino" 
-  description="Lumino 使用 wgpu 实现跨平台 GPU 加速渲染，结合 SoA 批量存储与多线程算法，胜任超高密度 Black MIDI 工程。"
+  title="渲染器 - Lumino" 
+  description="Lumino 渲染器涵盖音频（xsynth / KDMAPI / winmm）与视频（wgpu GPU 加速）两大通道，为创作提供完整的回放与可视化链路。"
 >
   <Header />
   <main>
     <PageHeader
-      tag="Performance"
-      title="性能渲染"
-      description="从 CPU 数据布局到 GPU 管线，每一层都为高密度音符与低延迟体验优化。"
+      tag="Renderer"
+      title="渲染器"
+      description="音频与视频双通道渲染引擎，从回放到可视化，覆盖创作流程的每一个输出环节。"
     />
 
     <section class="content-section">
       <div class="container">
-        <div class="perf-grid">
-          <div class="perf-content">
-            <span class="tag">GPU 加速</span>
-            <h2 class="section-title">wgpu 驱动的<br/><span class="accent-text">跨平台渲染管线</span></h2>
+        <div class="renderer-intro">
+          <div class="intro-text">
+            <span class="tag">Dual-channel</span>
+            <h2 class="section-title">音频 + 视频<br/><span class="accent-text">双渲染管线</span></h2>
             <p class="lead">
-              Lumino 基于 wgpu 构建渲染后端，可在 Windows、macOS 与 Linux 上复用同一套 GPU 管线。无论是音符矩形、网格背景还是视口滚动，渲染批次都经过合并优化，显著降低 CPU 开销。
+              Lumino 渲染器不是单一模块，而是由音频输出子系统与视频可视化子系统协同构成的完整渲染管线。编辑器的每一次修改都能通过音频通道即时聆听、通过视频通道实时反馈。
             </p>
-            <ul class="feature-list">
-              <li>iced 数据驱动 UI 框架，声明式界面与原生体验兼得</li>
-              <li>Canvas 级别的自定义绘制，钢琴卷帘完全可控</li>
-              <li>批处理渲染，减少 Draw Call 数量</li>
-              <li>winit 窗口抽象，统一事件循环与输入处理</li>
-            </ul>
           </div>
-          <div class="perf-visual">
-            <div class="perf-card gpu">
-              <div class="perf-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="4" width="16" height="16" rx="2"/>
-                  <path d="M8 8h8M8 12h8M8 16h5"/>
-                </svg>
+          <div class="renderer-graphic">
+            <div class="renderer-flow">
+              <div class="flow-box editor-flow">Editor</div>
+              <div class="flow-arrow">
+                <span></span>
               </div>
-              <h3>GPU Rendering</h3>
-              <div class="perf-bars">
-                <div class="bar-row"><span>Draw Calls</span><div class="bar low" style="width: 24%"></div></div>
-                <div class="bar-row"><span>CPU Overhead</span><div class="bar low" style="width: 32%"></div></div>
-                <div class="bar-row"><span>Frame Time</span><div class="bar low" style="width: 18%"></div></div>
+              <div class="flow-split">
+                <div class="flow-box audio">
+                  <span class="label">音频渲染</span>
+                  <span class="sub">xsynth · KDMAPI · winmm</span>
+                </div>
+                <div class="flow-box video">
+                  <span class="label">视频渲染</span>
+                  <span class="sub">wgpu · iced · Canvas</span>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="renderer-cols">
+          <div class="renderer-col">
+            <div class="col-header audio-header">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+              </svg>
+              <h3>音频渲染</h3>
+            </div>
+            <p class="col-desc">
+              多后端 MIDI 音频输出，根据场景自由切换：KDMAPI 专为 Black MIDI 极限事件吞吐优化，xsynth 提供跨平台一致 SoundFont 音色，winmm 作为通用兼容保底方案。
+            </p>
+            <ul class="feature-list">
+              {audioBackends.map(b => <li>{b}</li>)}
+            </ul>
+          </div>
+          <div class="renderer-col">
+            <div class="col-header video-header">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              <h3>视频渲染</h3>
+            </div>
+            <p class="col-desc">
+              基于 wgpu 的跨平台 GPU 渲染管线，iced 数据驱动框架与 Canvas 级自定义绘制相结合。音符、网格、视口滚动的渲染批次经过合并优化，显著降低 CPU 开销，在高密度工程下依旧保持流畅帧率。
+            </p>
+            <ul class="feature-list">
+              {videoFeatures.map(f => <li>{f}</li>)}
+            </ul>
           </div>
         </div>
       </div>
@@ -65,15 +92,25 @@ const metrics = [
         <div class="section-header">
           <span class="tag">Data Layout</span>
           <h2 class="section-title">SoA 批量存储，多线程并行</h2>
-          <p class="section-subtitle">当音符数量超过阈值时，Lumino 自动切换到结构体数组（SoA）存储，结合 Rayon 风格并行处理。</p>
+          <p class="section-subtitle">当音符数量超过阈值时自动切换到结构体数组存储，结合多线程并行处理，确保渲染线程永不阻塞。</p>
         </div>
         <div class="spec-grid">
-          {metrics.map(m => (
-            <div class="spec-card">
-              <div class="value">{m.value}</div>
-              <div class="label">{m.label}</div>
-            </div>
-          ))}
+          <div class="spec-card">
+            <div class="value">8 线程</div>
+            <div class="label">并行批量移动</div>
+          </div>
+          <div class="spec-card">
+            <div class="value">10,000+</div>
+            <div class="label">SoA 音符阈值</div>
+          </div>
+          <div class="spec-card">
+            <div class="value">< 1ms</div>
+            <div class="label">目标音频延迟</div>
+          </div>
+          <div class="spec-card">
+            <div class="value">wgpu</div>
+            <div class="label">跨平台 GPU 抽象</div>
+          </div>
         </div>
         <div class="code-block">
           <div class="code-header">
@@ -101,75 +138,124 @@ note_store.insert_bulk(notes);</code></pre>
 </Layout>
 
 <style>
-  .perf-grid {
+  .renderer-intro {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 64px;
     align-items: center;
+    margin-bottom: 80px;
   }
 
-  .perf-content {
+  .intro-text {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
 
-  .perf-visual {
+  .renderer-graphic {
     display: flex;
     justify-content: center;
   }
 
-  .perf-card {
+  .renderer-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
+  }
+
+  .flow-box {
+    padding: 16px 28px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .editor-flow {
+    background: var(--accent-gradient);
+    color: #0a0a0a;
+    width: 100%;
+  }
+
+  .flow-arrow span {
+    display: block;
+    width: 2px;
+    height: 24px;
+    background: var(--copper);
+    margin: 0 auto;
+  }
+
+  .flow-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .flow-box.audio {
+    background: rgba(184, 115, 51, 0.1);
+    border: 1px solid rgba(184, 115, 51, 0.3);
+    color: var(--gold-light);
+  }
+
+  .flow-box.video {
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    color: var(--gold);
+  }
+
+  .flow-box .label { display: block; }
+  .flow-box .sub { display: block; font-size: 0.75rem; opacity: 0.7; margin-top: 4px; }
+
+  .renderer-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .renderer-col {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 40px;
-    box-shadow: var(--shadow-lg);
+    padding: 36px;
   }
 
-  .perf-card.gpu {
-    border-color: rgba(184, 115, 51, 0.25);
-  }
-
-  .perf-icon {
-    width: 64px;
-    height: 64px;
+  .col-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: var(--radius);
-    background: rgba(184, 115, 51, 0.1);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .col-header svg {
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .audio-header svg {
+    background: rgba(184, 115, 51, 0.12);
+    color: var(--copper-light);
+  }
+
+  .video-header svg {
+    background: rgba(212, 175, 55, 0.12);
     color: var(--gold);
-    margin-bottom: 24px;
   }
 
-  .perf-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 24px;
+  .col-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
   }
 
-  .perf-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .bar-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    font-size: 0.875rem;
+  .col-desc {
     color: var(--text-secondary);
-  }
-
-  .bar {
-    height: 8px;
-    border-radius: 4px;
-    background: var(--accent-gradient);
-    flex-shrink: 0;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
   }
 
   .bg-secondary {
@@ -227,9 +313,6 @@ note_store.insert_bulk(notes);</code></pre>
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.9rem;
     line-height: 1.7;
-  }
-
-  code {
     color: var(--text-secondary);
   }
 
@@ -239,9 +322,12 @@ note_store.insert_bulk(notes);</code></pre>
   .number { color: #b5cea8; }
 
   @media (max-width: 900px) {
-    .perf-grid {
+    .renderer-intro {
       grid-template-columns: 1fr;
       gap: 40px;
+    }
+    .renderer-cols {
+      grid-template-columns: 1fr;
     }
   }
 </style>

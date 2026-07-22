@@ -7,14 +7,14 @@ import FeatureCard from '../components/FeatureCard.astro';
 
 const features = [
   {
-    title: '专业 MIDI 编辑器',
-    description: '多轨编辑、音符绘制、力度调整与钢琴卷帘，支持 Black MIDI 级别的高密度音符处理与流畅交互。',
+    title: 'MIDI 编辑器',
+    description: '钢琴卷帘多轨编辑、音符绘制、力度调整与选择框批量操作，专为 Black MIDI 高密度场景优化，畅快编辑百万级音符。',
     href: '/features/editor/',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h4m4 0h4M6 12h4m4 0h4M6 16h4m4 0h4"/></svg>'
   },
   {
-    title: 'GPU 加速渲染',
-    description: '基于 wgpu 的跨平台 GPU 渲染管线，确保百万级音符场景依旧保持低延迟与稳定帧率。',
+    title: '渲染器',
+    description: '音频渲染（xsynth / KDMAPI / winmm 低延迟输出）与视频渲染（wgpu GPU 加速可视化），实时预览最终效果。',
     href: '/features/performance/',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
   },
@@ -58,7 +58,7 @@ const features = [
             <h2 class="section-title">Rust 的核心，<br/><span class="accent-text">为速度而生</span></h2>
           </div>
           <p class="lead">
-            传统 MIDI 编辑器在处理 Black MIDI 级别的超高密度音符时往往力不从心。Lumino 从底层开始用 Rust 重写核心引擎，结合 wgpu 的 GPU 渲染与多后端音频输出，让复杂工程也能流畅编辑与回放。
+            传统 MIDI 编辑器在处理 Black MIDI 级别的超高密度音符时往往力不从心。Lumino 以编辑器和渲染器两大核心驱动工作流——编辑器提供钢琴卷帘与多轨编排，渲染器涵盖音频低延迟输出与 GPU 加速可视化，让复杂工程也能流畅编辑与回放。
           </p>
         </div>
       </div>
