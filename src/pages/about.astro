@@ -1,0 +1,246 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import PageHeader from '../../components/PageHeader.astro';
+
+const credits = [
+  { name: 'winit', desc: '窗口事件抽象' },
+  { name: 'wgpu', desc: '跨平台 GPU 抽象' },
+  { name: 'iced', desc: '数据驱动的 UI 框架' },
+  { name: 'midir', desc: 'Rust MIDI I/O 库' },
+];
+
+const principles = [
+  { title: '性能优先', desc: '用 Rust 与 GPU 渲染确保 Black MIDI 场景下的稳定表现。' },
+  { title: '开放源码', desc: 'AGPL-3.0 许可证，欢迎社区贡献、审查与 fork。' },
+  { title: '现代架构', desc: '模块化 crate 设计，避免 God Object，便于维护与扩展。' },
+  { title: '跨平台', desc: 'Windows、macOS 与 Linux 共享同一套 Rust 核心。' },
+];
+---
+
+<Layout 
+  title="关于 - Lumino" 
+  description="关于 Lumino：一个使用 Rust 构建的新一代 MIDI 编辑器，专注 Black MIDI 与高性能音乐创作体验。"
+>
+  <Header />
+  <main>
+    <PageHeader
+      tag="About"
+      title="关于 Lumino"
+      description="了解 Lumino 的项目背景、设计理念、开源协议与致谢。"
+    />
+
+    <section class="content-section">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-text">
+            <span class="tag">Project</span>
+            <h2 class="section-title">为 Black MIDI 而生的<br/><span class="accent-text">现代 MIDI 编辑器</span></h2>
+            <p class="lead">
+              Lumino 诞生于对高密度 MIDI 工程编辑体验的重新审视。传统编辑器在处理数百万音符时往往会出现卡顿、渲染延迟或操作响应迟缓。Lumino 使用 Rust 重新构建核心数据结构与渲染管线，并基于 wgpu 与 iced 打造现代化跨平台界面，让创作回归音乐本身。
+            </p>
+            <p class="lead">
+              项目采用模块化 crate 架构，从 MIDI 数据模型到实时合成、从 UI 状态机到协作同步，每个子系统都有明确的边界与职责，避免历史上常见的 God Object 问题。
+            </p>
+          </div>
+          <div class="principles">
+            {principles.map((p) => (
+              <div class="principle-card">
+                <h3>{p.title}</h3>
+                <p>{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section bg-secondary" id="license">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">License</span>
+          <h2 class="section-title">开源协议</h2>
+          <p class="section-subtitle">Lumino 在 AGPL-3.0 或更新版本下发布，代码可在 GitHub 上自由获取、审查与贡献。</p>
+        </div>
+        <div class="license-card">
+          <div class="license-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+            </svg>
+          </div>
+          <div class="license-content">
+            <h3>AGPL-3.0-or-later</h3>
+            <p>
+              Lumino 是自由软件：你可以再发布和/或修改它，但任何基于 Lumino 的线上服务或分发都必须以相同协议公开源代码。详情请见仓库根目录的 LICENSE 文件。
+            </p>
+            <a href="https://github.com/PenguinBMDevs/lumino-rs/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" class="btn btn-secondary license-link">
+              查看许可证原文
+            </a>
+          </div>
+        </div>
+
+        <div class="credits">
+          <h3 class="credits-title">致谢</h3>
+          <div class="credits-grid">
+            {credits.map((c) => (
+              <div class="credit-card">
+                <strong>{c.name}</strong>
+                <span>{c.desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .about-text {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .about-text p.lead + p.lead {
+    margin-top: -4px;
+  }
+
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .principle-card {
+    padding: 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .principle-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--gold-light);
+  }
+
+  .principle-card p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .bg-secondary {
+    background: var(--bg-secondary);
+  }
+
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 48px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .license-card {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    padding: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 64px;
+  }
+
+  .license-icon {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    background: rgba(184, 115, 51, 0.1);
+    color: var(--gold);
+  }
+
+  .license-content h3 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .license-content p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .license-link {
+    align-self: flex-start;
+  }
+
+  .credits-title {
+    font-size: 1.25rem;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .credits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .credit-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+
+  .credit-card strong {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+  }
+
+  .credit-card span {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .principles {
+      grid-template-columns: 1fr 1fr;
+    }
+    .license-card {
+      flex-direction: column;
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .principles {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

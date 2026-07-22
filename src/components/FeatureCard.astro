@@ -1,0 +1,82 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  href: string;
+  icon: string;
+}
+
+const { title, description, href, icon } = Astro.props;
+---
+
+<a href={href} class="feature-card">
+  <div class="card-icon" aria-hidden="true">
+    <Fragment set:html={icon} />
+  </div>
+  <h3>{title}</h3>
+  <p>{description}</p>
+  <span class="card-link">了解更多</span>
+</a>
+
+<style>
+  .feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.25s ease;
+    height: 100%;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(184, 115, 51, 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(184, 115, 51, 0.08);
+  }
+
+  .feature-card:hover .card-link {
+    color: var(--gold-light);
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: rgba(184, 115, 51, 0.1);
+    border: 1px solid rgba(184, 115, 51, 0.2);
+    color: var(--gold);
+  }
+
+  .card-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 1.8;
+  }
+
+  .feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .feature-card p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .card-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--copper-light);
+    transition: color 0.2s ease;
+  }
+</style>

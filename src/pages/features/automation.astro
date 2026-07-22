@@ -1,0 +1,218 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+
+const edits = [
+  { type: 'Add', desc: '在指定 tick 处添加新的控制事件，同 tick 会替换旧值。' },
+  { type: 'Move', desc: '将事件移动到新的 tick 与值，保持曲线连续性。' },
+  { type: 'Delete', desc: '按 tick 精确删除目标事件。' },
+  { type: 'CycleShape', desc: '在 Step、Curve 等线段形状之间循环切换。' },
+];
+
+const targets = [
+  { name: 'CC', desc: 'MIDI 控制变更，如音量、表情、踏板等。' },
+  { name: 'Pitch Bend', desc: '弯音轮事件，绘制滑音与颤音。' },
+  { name: 'Channel Pressure', desc: '通道触后，统一控制表情强度。' },
+];
+---
+
+<Layout 
+  title="自动化轨道 - Lumino" 
+  description="Lumino 提供 CC、弯音等自动化曲线编辑，支持 Add、Move、Delete、CycleShape 等操作。"
+>
+  <Header />
+  <main>
+    <PageHeader
+      tag="Automation"
+      title="自动化轨道"
+      description="用曲线控制音乐的动态表情，CC、弯音与通道触后均可可视化编辑。"
+    />
+
+    <section class="content-section">
+      <div class="container">
+        <div class="auto-showcase">
+          <div class="auto-visual">
+            <div class="automation-lane">
+              <div class="lane-header">
+                <span class="lane-name">CC 7 - Volume</span>
+                <span class="lane-value">Value</span>
+              </div>
+              <div class="curve-stage">
+                <svg viewBox="0 0 400 160" preserveAspectRatio="none" class="curve-svg">
+                  <defs>
+                    <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="rgba(184, 115, 51, 0.35)"/>
+                      <stop offset="100%" stop-color="rgba(184, 115, 51, 0)"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,120 C80,120 80,40 140,40 C200,40 200,100 260,60 C320,20 360,80 400,30" fill="none" stroke="url(#curveGradient)" stroke-width="2.5" />
+                  <linearGradient id="curveGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#b87333"/>
+                    <stop offset="100%" stop-color="#d4af37"/>
+                  </linearGradient>
+                  <path d="M0,120 C80,120 80,40 140,40 C200,40 200,100 260,60 C320,20 360,80 400,30 L400,160 L0,160 Z" fill="url(#curveFill)" />
+                  <circle cx="0" cy="120" r="5" fill="#d4af37"/>
+                  <circle cx="140" cy="40" r="5" fill="#d4af37"/>
+                  <circle cx="260" cy="60" r="5" fill="#d4af37"/>
+                  <circle cx="400" cy="30" r="5" fill="#d4af37"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="auto-content">
+            <span class="tag">Automation</span>
+            <h2 class="section-title">曲线控制，<br/><span class="accent-text">精准到每一刻</span></h2>
+            <p class="lead">
+              Lumino 的自动化系统为每条音轨维护独立的 automation lane 列表，所有编辑操作都通过统一的 AutomationEdit 枚举描述，便于撤销、重做与协作同步。
+            </p>
+            <div class="targets">
+              <h4>支持目标</h4>
+              <div class="target-tags">
+                {targets.map(t => (
+                  <div class="target-tag">
+                    <strong>{t.name}</strong>
+                    <span>{t.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="edit-types">
+          {edits.map((e) => (
+            <div class="edit-type-card">
+              <span class="edit-name">{e.type}</span>
+              <p>{e.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .auto-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin-bottom: 64px;
+  }
+
+  .automation-lane {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .lane-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .lane-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .curve-stage {
+    position: relative;
+    height: 180px;
+    padding: 24px;
+  }
+
+  .curve-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .auto-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .targets h4 {
+    font-size: 0.875rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+
+  .target-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .target-tag {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .target-tag strong {
+    color: var(--text-primary);
+    font-size: 1rem;
+  }
+
+  .target-tag span {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
+  .edit-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .edit-type-card {
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .edit-name {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 12px;
+    padding: 4px 10px;
+    background: rgba(184, 115, 51, 0.1);
+    border-radius: 6px;
+  }
+
+  .edit-type-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 900px) {
+    .auto-showcase {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>

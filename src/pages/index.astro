@@ -1,0 +1,200 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Hero from '../components/Hero.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+
+const features = [
+  {
+    title: '专业 MIDI 编辑器',
+    description: '多轨编辑、音符绘制、力度调整与钢琴卷帘，支持 Black MIDI 级别的高密度音符处理与流畅交互。',
+    href: '/features/editor/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h4m4 0h4M6 12h4m4 0h4M6 16h4m4 0h4"/></svg>'
+  },
+  {
+    title: 'GPU 加速渲染',
+    description: '基于 wgpu 的跨平台 GPU 渲染管线，确保百万级音符场景依旧保持低延迟与稳定帧率。',
+    href: '/features/performance/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+  },
+  {
+    title: '多后端 MIDI I/O',
+    description: '同时支持 KDMAPI、winmm 与 xsynth 后端，灵活适配不同场景，提供强劲音色输出与低延迟回放。',
+    href: '/features/backends/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+  },
+  {
+    title: '实时协作',
+    description: '多用户同步编辑同一工程，自动广播音符、走带与视口状态变化，让团队协作无缝衔接。',
+    href: '/features/collaboration/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+  },
+  {
+    title: '自动化轨道',
+    description: 'CC、弯音等控制器曲线支持 Add / Move / Delete / CycleShape 操作，让表情与混音控制精准到位。',
+    href: '/features/automation/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
+  },
+  {
+    title: '配置持久化',
+    description: '自动保存窗口状态、主题设置与编辑偏好，重启后即刻恢复熟悉的创作环境。',
+    href: '/features/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'
+  }
+];
+---
+
+<Layout>
+  <Header />
+  <main>
+    <Hero />
+
+    <section class="intro">
+      <div class="container">
+        <div class="intro-grid">
+          <div class="intro-text">
+            <span class="tag">为什么选 Lumino</span>
+            <h2 class="section-title">Rust 的核心，<br/><span class="accent-text">为速度而生</span></h2>
+          </div>
+          <p class="lead">
+            传统 MIDI 编辑器在处理 Black MIDI 级别的超高密度音符时往往力不从心。Lumino 从底层开始用 Rust 重写核心引擎，结合 wgpu 的 GPU 渲染与多后端音频输出，让复杂工程也能流畅编辑与回放。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">功能一览</span>
+          <h2 class="section-title">每一项，都为创作打磨</h2>
+          <p class="section-subtitle">从音符输入到混音导出，Lumino 提供完整的工作流支持。</p>
+        </div>
+        <div class="grid grid-3">
+          {features.map((feature) => (
+            <FeatureCard {...feature} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-card">
+          <div class="cta-content">
+            <h2 class="section-title">准备好开始了吗？</h2>
+            <p class="section-subtitle">Lumino 在 Windows、macOS 与 Linux 上均可运行。下载最新版本，开启你的 Black MIDI 创作之旅。</p>
+            <div class="cta-actions">
+              <a href="/download/" class="btn btn-primary">下载 Lumino</a>
+              <a href="https://github.com/PenguinBMDevs/lumino-rs" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                查看 GitHub
+              </a>
+            </div>
+          </div>
+          <div class="cta-glow"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .intro {
+    padding: 120px 0;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .intro-text {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .features-section {
+    padding: 120px 0;
+    background: var(--bg-primary);
+  }
+
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 64px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .cta-section {
+    padding: 80px 0 120px;
+  }
+
+  .cta-card {
+    position: relative;
+    overflow: hidden;
+    padding: 64px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .cta-content {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+  }
+
+  .cta-content .section-title {
+    margin-bottom: 16px;
+  }
+
+  .cta-content .section-subtitle {
+    margin: 0 auto 32px;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cta-glow {
+    position: absolute;
+    top: 50%;
+    right: -120px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(184, 115, 51, 0.2) 0%, transparent 70%);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    .intro-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .intro, .features-section {
+      padding: 80px 0;
+    }
+    .cta-card {
+      padding: 40px 24px;
+    }
+  }
+</style>

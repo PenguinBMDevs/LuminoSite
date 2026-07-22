@@ -1,0 +1,168 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import FeatureCard from '../../components/FeatureCard.astro';
+
+const featurePages = [
+  {
+    title: 'MIDI 编辑器',
+    description: '基于钢琴卷帘的多轨编辑、音符绘制、力度调整与选择框操作，专为 Black MIDI 的高密度场景设计。',
+    href: '/features/editor/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h4m4 0h4M6 12h4m4 0h4M6 16h4m4 0h4"/></svg>'
+  },
+  {
+    title: '性能渲染',
+    description: 'wgpu 驱动的 GPU 加速管线、SoA 批量音符存储与多线程移动算法，让复杂工程也能保持高帧率。',
+    href: '/features/performance/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+  },
+  {
+    title: 'MIDI 后端',
+    description: 'KDMAPI、winmm 与 xsynth 多后端同时支持，适应创作、监听与导出等不同音频输出需求。',
+    href: '/features/backends/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+  },
+  {
+    title: '实时协作',
+    description: '多人同步编辑，自动广播音符、走带、速度、拍号与视口变化，支持项目状态快照与增量更新。',
+    href: '/features/collaboration/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+  },
+  {
+    title: '自动化轨道',
+    description: 'CC、弯音等控制器曲线可视化编辑，支持添加、移动、删除与曲线形状切换，精准控制表情变化。',
+    href: '/features/automation/',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
+  }
+];
+---
+
+<Layout 
+  title="功能特性 - Lumino" 
+  description="探索 Lumino 的核心功能：专业 MIDI 编辑、GPU 加速渲染、多后端 MIDI I/O、实时协作与自动化轨道。"
+>
+  <Header />
+  <main>
+    <PageHeader
+      tag="Features"
+      title="功能特性"
+      description="Lumino 将 Rust 的性能优势与现代 MIDI 工作流相结合，每个模块都独立打磨，满足从创作到发布的各个环节。"
+    />
+
+    <section class="content-section">
+      <div class="container">
+        <div class="feature-flow">
+          <div class="flow-step">
+            <span class="flow-number">01</span>
+            <h3>创作</h3>
+            <p>在多轨钢琴卷帘中绘制音符、调整力度，使用选择框批量移动与编辑，灵感不再被工具打断。</p>
+          </div>
+          <div class="flow-divider"></div>
+          <div class="flow-step">
+            <span class="flow-number">02</span>
+            <h3>预览</h3>
+            <p>通过 KDMAPI 或 xsynth 实时回放，低延迟引擎让每一次试听都精准还原最终效果。</p>
+          </div>
+          <div class="flow-divider"></div>
+          <div class="flow-step">
+            <span class="flow-number">03</span>
+            <h3>协作</h3>
+            <p>邀请他人加入工程，同步视口、走带与音符变更，多人共同完成复杂编排。</p>
+          </div>
+          <div class="flow-divider"></div>
+          <div class="flow-step">
+            <span class="flow-number">04</span>
+            <h3>导出</h3>
+            <p>将完成的工程导出为标准 MIDI 文件，或借助后续计划中的音频导出功能直接生成成品。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section features-grid-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">深入了解</span>
+          <h2 class="section-title">逐项了解 Lumino</h2>
+        </div>
+        <div class="grid grid-3">
+          {featurePages.map((page) => (
+            <FeatureCard {...page} />
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .feature-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .flow-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+  }
+
+  .flow-number {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .flow-step h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .flow-step p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .flow-divider {
+    width: 32px;
+    height: 2px;
+    background: var(--accent-gradient);
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+
+  .features-grid-section {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+  }
+
+  .features-grid-section .section-header {
+    margin-bottom: 48px;
+  }
+
+  @media (max-width: 1024px) {
+    .feature-flow {
+      grid-template-columns: 1fr;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .flow-divider {
+      width: 2px;
+      height: 32px;
+      margin: 0 auto;
+    }
+  }
+</style>

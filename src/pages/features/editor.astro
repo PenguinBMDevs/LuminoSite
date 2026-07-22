@@ -1,0 +1,251 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+
+const tools = ['选择工具 (Pointer)', '橡皮擦 (Eraser)', '画笔 (Pencil)', '力度刷'];
+const interactions = ['框选音符', '批量移动', '复制 / 粘贴 / 删除', '撤销 / 重做（History 快照）'];
+---
+
+<Layout 
+  title="MIDI 编辑器 - Lumino" 
+  description="Lumino 的钢琴卷帘与多轨 MIDI 编辑器，支持音符绘制、力度编辑、选择框与 Black MIDI 级别的高密度音符处理。"
+>
+  <Header />
+  <main>
+    <PageHeader
+      tag="Editor"
+      title="MIDI 编辑器"
+      description="专业钢琴卷帘与多轨工作流，从音符绘制到力度微调，每一个交互都为效率设计。"
+    />
+
+    <section class="content-section">
+      <div class="container">
+        <div class="editor-showcase">
+          <div class="editor-visual">
+            <div class="piano-roll-demo">
+              <div class="keys">
+                {Array.from({length: 8}).map((_, i) => (
+                  <div class="key" class:list={i % 2 === 0 ? 'black' : 'white'}></div>
+                ))}
+              </div>
+              <div class="roll-grid">
+                {Array.from({length: 32}).map((_, i) => (
+                  <div class="grid-cell"></div>
+                ))}
+                <div class="demo-note" style="top: 24px; left: 12%; width: 20%"></div>
+                <div class="demo-note" style="top: 72px; left: 32%; width: 15%"></div>
+                <div class="demo-note" style="top: 48px; left: 56%; width: 24%"></div>
+                <div class="demo-note" style="top: 96px; left: 74%; width: 18%"></div>
+                <div class="demo-note selected" style="top: 120px; left: 22%; width: 16%"></div>
+                <div class="selection-box"></div>
+              </div>
+            </div>
+            <div class="velocity-ruler">
+              {Array.from({length: 16}).map((_, i) => {
+                const height = [40, 65, 80, 55, 90, 45, 70, 85, 50, 75, 60, 95, 35, 78, 52, 88][i];
+                return <div class="vbar" style={`height: ${height}%`}></div>;
+              })}
+            </div>
+          </div>
+          <div class="editor-details">
+            <span class="tag">核心编辑能力</span>
+            <h2 class="section-title">钢琴卷帘，<br/><span class="accent-text">所想即所得</span></h2>
+            <p class="lead">
+              Lumino 的编辑器状态机管理鼠标、键盘与触控交互，从单击插入音符到框选批量操作，所有编辑动作都经过精心优化，确保在高密度 Black MIDI 工程下依旧丝滑。
+            </p>
+            <div class="details-grid">
+              <div class="detail-block">
+                <h4>编辑工具</h4>
+                <ul class="feature-list">
+                  {tools.map(t => <li>{t}</li>)}
+                </ul>
+              </div>
+              <div class="detail-block">
+                <h4>交互操作</h4>
+                <ul class="feature-list">
+                  {interactions.map(item => <li>{item}</li>)}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section bg-secondary">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">Architecture</span>
+          <h2 class="section-title">分层状态管理</h2>
+          <p class="section-subtitle">将原本臃肿的 God Object 拆分为多个内聚子模块，每个模块只负责单一职责。</p>
+        </div>
+        <div class="spec-grid">
+          <div class="spec-card">
+            <div class="value">CanvasState</div>
+            <div class="label">几何状态与视口滚动</div>
+          </div>
+          <div class="spec-card">
+            <div class="value">EditorData</div>
+            <div class="label">音符数据与音轨缓存</div>
+          </div>
+          <div class="spec-card">
+            <div class="value">InteractionState</div>
+            <div class="label">交互状态机与命中检测</div>
+          </div>
+          <div class="spec-card">
+            <div class="value">History</div>
+            <div class="label">撤销 / 重做快照</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .editor-showcase {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .editor-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .piano-roll-demo {
+    display: flex;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+  }
+
+  .keys {
+    width: 56px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .key {
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .key.white { background: #2a2a2a; }
+  .key.black { background: #1a1a1a; }
+
+  .roll-grid {
+    flex: 1;
+    position: relative;
+    background: 
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px), 
+      linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 12.5% 25%;
+  }
+
+  .grid-cell {
+    width: 12.5%;
+    height: 25%;
+    float: left;
+    border-right: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .demo-note {
+    position: absolute;
+    height: 20px;
+    border-radius: 4px;
+    background: var(--accent-gradient);
+    box-shadow: 0 2px 8px rgba(184, 115, 51, 0.25);
+    opacity: 0.9;
+  }
+
+  .demo-note.selected {
+    box-shadow: 0 0 0 2px #ffffff, 0 4px 12px rgba(184, 115, 51, 0.3);
+    opacity: 1;
+  }
+
+  .selection-box {
+    position: absolute;
+    top: 110px;
+    left: 18%;
+    width: 24%;
+    height: 48px;
+    border: 1px dashed var(--gold);
+    background: rgba(212, 175, 55, 0.08);
+    border-radius: 4px;
+  }
+
+  .velocity-ruler {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 90px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .vbar {
+    flex: 1;
+    background: var(--accent-gradient);
+    border-radius: 3px 3px 0 0;
+    opacity: 0.8;
+  }
+
+  .editor-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 16px;
+  }
+
+  .detail-block h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .bg-secondary {
+    background: var(--bg-secondary);
+  }
+
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 48px;
+    text-align: center;
+    align-items: center;
+  }
+
+  @media (max-width: 900px) {
+    .editor-showcase {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

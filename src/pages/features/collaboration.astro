@@ -1,0 +1,259 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+
+const updateTypes = [
+  'ViewState — 视口与滚动位置',
+  'Track — 音轨音符变更',
+  'Tempo — 速度变化',
+  'TimeSignature — 拍号变化',
+  'Metadata — 工程元数据',
+  'Full — 完整工程快照',
+];
+---
+
+<Layout 
+  title="实时协作 - Lumino" 
+  description="Lumino 支持多人实时协作编辑 MIDI 工程，自动同步音符、走带、速度与视口状态。"
+>
+  <Header />
+  <main>
+    <PageHeader
+      tag="Collaboration"
+      title="实时协作"
+      description="多人同步编辑同一 MIDI 工程，变更自动广播，团队协作无缝衔接。"
+    />
+
+    <section class="content-section">
+      <div class="container">
+        <div class="collab-showcase">
+          <div class="collab-content">
+            <span class="tag">Multi-user</span>
+            <h2 class="section-title">一起创作，<br/><span class="accent-text">变更即时同步</span></h2>
+            <p class="lead">
+              Lumino 将工程拆分为多个可独立广播的更新类型。当一位用户移动音符、调整速度或滚动视口时，其他协作者会立即收到增量更新，无需手动刷新或频繁保存版本。
+            </p>
+            <ul class="feature-list">
+              <li>WebSocket 或本地网络通道传输二进制 / JSON 更新</li>
+              <li>增量同步，仅发送变更部分，降低带宽占用</li>
+              <li>项目状态快照，便于回溯与冲突处理</li>
+              <li>视口同步，指挥者模式与跟随模式可选</li>
+            </ul>
+          </div>
+          <div class="collab-visual">
+            <div class="users-panel">
+              <div class="user me">
+                <div class="avatar">A</div>
+                <div class="user-info">
+                  <span class="name">你 (Host)</span>
+                  <span class="status">编辑中</span>
+                </div>
+              </div>
+              <div class="sync-line"></div>
+              <div class="user guest">
+                <div class="avatar">B</div>
+                <div class="user-info">
+                  <span class="name">协作者</span>
+                  <span class="status synchronizing">同步中</span>
+                </div>
+              </div>
+              <div class="user guest">
+                <div class="avatar">C</div>
+                <div class="user-info">
+                  <span class="name">协作者</span>
+                  <span class="status online">在线</span>
+                </div>
+              </div>
+            </div>
+            <div class="sync-indicator">
+              <span class="pulse"></span>
+              <span>实时同步已开启</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section bg-secondary">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">ProjectUpdate</span>
+          <h2 class="section-title">结构化更新类型</h2>
+          <p class="section-subtitle">每种变更都有明确的类型与数据结构，便于扩展、调试和版本管理。</p>
+        </div>
+        <div class="update-grid">
+          {updateTypes.map((type, i) => (
+            <div class="update-card">
+              <span class="update-number">{String(i + 1).padStart(2, '0')}</span>
+              <p>{type}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .collab-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .collab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .collab-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .users-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    margin-bottom: 12px;
+  }
+
+  .user:last-child {
+    margin-bottom: 0;
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #0a0a0a;
+    background: var(--accent-gradient);
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .user-info .name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .user-info .status {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .user-info .status.online {
+    color: #4ade80;
+  }
+
+  .user-info .status.synchronizing {
+    color: var(--gold);
+  }
+
+  .sync-line {
+    width: 2px;
+    height: 24px;
+    margin-left: 30px;
+    background: linear-gradient(180deg, var(--copper), var(--gold));
+  }
+
+  .sync-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: rgba(184, 115, 51, 0.08);
+    border: 1px solid rgba(184, 115, 51, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--gold-light);
+    font-weight: 500;
+    align-self: center;
+  }
+
+  .pulse {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+
+  .bg-secondary {
+    background: var(--bg-secondary);
+  }
+
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 48px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .update-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .update-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .update-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .update-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--copper-light);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 900px) {
+    .collab-showcase {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>
