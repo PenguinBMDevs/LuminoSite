@@ -15,9 +15,9 @@ const { lang } = Astro.props;
 const t = getDictionary(lang);
 const year = new Date().getFullYear();
 
-/** The downloads page is internal, the rest come from the dictionary (external). */
+/** The download page is internal, the rest come from the dictionary (external). */
 const navLinks = [
-  { text: t.header.download, href: localizePath('/download/', lang), external: false },
+  { text: t.footer.downloadPage, href: localizePath('/download/', lang), external: false },
   ...t.footer.links.map((link) => ({ ...link, external: true })),
 ];
 ---

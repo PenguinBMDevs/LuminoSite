@@ -52,6 +52,8 @@ export interface Dictionary {
     title: string;
     description: string;
     cta: string;
+    /** Secondary link to the download page (platform matrix + source build). */
+    infoLink: string;
   };
 
   download: {
@@ -77,6 +79,8 @@ export interface Dictionary {
   footer: {
     tagline: string;
     linksHeading: string;
+    /** Label of the internal link to the download page (not a download action). */
+    downloadPage: string;
     links: Array<{ text: string; href: string }>;
     rights: string;
     licenseLine: string;
@@ -125,8 +129,9 @@ const zh: Dictionary = {
 
   home: {
     title: 'Lumino: 新一代MIDI编辑器',
-    description: '下载页提供 Windows、macOS 与 Linux 安装包，以及从源码构建的说明。',
-    cta: '前往下载',
+    description: '点击下载即可前往 GitHub Releases 获取安装包；安装包说明与源码构建步骤另见下载页。',
+    cta: '下载 Lumino',
+    infoLink: '查看平台与源码构建',
   },
 
   download: {
@@ -176,6 +181,7 @@ const zh: Dictionary = {
   footer: {
     tagline: 'PenguinBMDevs 维护的开源 MIDI 编辑器，使用 Rust 编写。',
     linksHeading: '链接',
+    downloadPage: '下载页',
     links: [
       { text: 'GitHub 仓库', href: 'https://github.com/PenguinBMDevs/lumino-rs' },
       { text: '版本发布', href: 'https://github.com/PenguinBMDevs/lumino-rs/releases' },
@@ -230,8 +236,9 @@ const en: Dictionary = {
   home: {
     title: 'Lumino: A Next‑Generation MIDI Editor',
     description:
-      'The download page lists Windows, macOS and Linux builds, plus instructions for building Lumino from source.',
-    cta: 'Go to downloads',
+      'Downloading takes you straight to GitHub Releases; platform notes and source build steps live on the download page.',
+    cta: 'Download Lumino',
+    infoLink: 'Platforms & build instructions',
   },
 
   download: {
@@ -283,6 +290,7 @@ const en: Dictionary = {
   footer: {
     tagline: 'An open source MIDI editor written in Rust, maintained by PenguinBMDevs.',
     linksHeading: 'Links',
+    downloadPage: 'Downloads page',
     links: [
       { text: 'GitHub repository', href: 'https://github.com/PenguinBMDevs/lumino-rs' },
       { text: 'Releases', href: 'https://github.com/PenguinBMDevs/lumino-rs/releases' },

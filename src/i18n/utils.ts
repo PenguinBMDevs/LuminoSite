@@ -30,12 +30,6 @@ export const localizePath = (pathname: string, lang: Lang): string => {
 export const getLocalizedUrl = (pathname: string, lang: Lang): string =>
   new URL(localizePath(pathname, lang), SITE.site).toString();
 
-/** Compares two paths ignoring the trailing slash, for "current page" styling. */
-export const isActivePath = (pathname: string, href: string): boolean => {
-  const normalize = (value: string) => `/${value.replace(/^\/+/, '').replace(/\/+$/, '')}`;
-  return normalize(pathname) === normalize(href);
-};
-
 /** Every locale with its localised URL, for the language picker and `hreflang`. */
 export const getLocaleLinks = (pathname: string): Array<{ lang: Lang; href: string; url: string }> =>
   localeCodes.map((lang) => ({

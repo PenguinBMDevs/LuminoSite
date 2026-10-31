@@ -2,6 +2,8 @@
 
 Lumino（Rust 编写的开源 MIDI 编辑器）的官方站点。按 [AstroWind](https://github.com/onwidget/astrowind) 模板的结构与设计语言搭建，站点只有两页内容：**标题页**（`/`）与**下载页**（`/download/`），不含功能宣传页，提供中英双语。标题页单独占满一屏，只展示产品名 `Lumino: 新一代MIDI编辑器` 与下载入口。
 
+**下载按钮统一直连 GitHub Releases**（页头按钮、标题页主按钮、下载页主按钮都指向 `APP.releases`，新标签页打开）；下载页本身只承载平台清单与源码构建说明，从标题页的「查看平台与源码构建」和页脚进入。
+
 - **框架**：Astro 7（`output: 'static'`，`build.format: 'directory'`）
 - **样式**：Tailwind CSS 4（CSS-first，`@tailwindcss/vite`）
 - **图标**：`astro-icon` + `@iconify-json/tabler`
@@ -82,7 +84,7 @@ URL 规则：默认语言不带前缀（`/`、`/download/`），其他语言带�
 
 | 要改什么 | 改哪里 |
 | --- | --- |
-| 下载地址 / 仓库 / 许可证链接、版本号 | `src/config.ts` 的 `APP` |
+| 下载地址 / 仓库 / 许可证链接、版本号 | `src/config.ts` 的 `APP`（所有下载按钮都读 `APP.releases`） |
 | 标题页标题（含浏览器 `<title>`） | `src/i18n/ui.ts` 的 `home.title` / `meta.home.title` |
 | 页面文案（含描述、平台说明） | `src/i18n/ui.ts` |
 | 平台列表（名称、架构、说明） | `src/i18n/ui.ts` 的 `download.platforms` |
