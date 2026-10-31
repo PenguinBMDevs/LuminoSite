@@ -14,6 +14,8 @@ export const SITE = {
   base: '/',
   /** Trailing slashes are emitted by `build.format: 'directory'`. */
   trailingSlash: true,
+  /** Project logo, taken from the app icon shipped with the project. */
+  logo: '/logo.png',
 };
 
 /** Default social metadata; pages override the localised parts. */

@@ -10,15 +10,17 @@ export interface Props {
   description?: string;
   robots?: MetaData['robots'];
   canonical?: string;
+  /** Uses `title` as-is instead of wrapping it in `meta.titleTemplate`. */
+  ignoreTitleTemplate?: boolean;
 }
 
-const { lang, title, description, robots, canonical } = Astro.props;
+const { lang, title, description, robots, canonical, ignoreTitleTemplate = false } = Astro.props;
 const t = getDictionary(lang);
 
 const doIndex = robots?.index ?? METADATA.robots.index;
 const doFollow = robots?.follow ?? METADATA.robots.follow;
 
-const pageTitle = title ? t.meta.titleTemplate.replace('%s', title) : SITE.name;
+const pageTitle = title && !ignoreTitleTemplate ? t.meta.titleTemplate.replace('%s', title) : (title ?? SITE.name);
 
 /*
  * `noindex` pages (the 404) have no meaningful canonical URL and must not emit

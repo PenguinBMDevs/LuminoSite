@@ -1,0 +1,13 @@
+---
+import Download from '~/components/pages/Download.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+import { getDictionary, type Lang } from '~/i18n/ui';
+
+const lang: Lang = 'zh';
+const t = getDictionary(lang);
+---
+
+<PageLayout lang={lang} title={t.meta.download.title} description={t.meta.download.description}>
+  <Download lang={lang} />
+</PageLayout>

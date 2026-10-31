@@ -1,12 +1,13 @@
 # Lumino 官网
 
-Lumino（Rust 编写的开源 MIDI 编辑器）的官方站点。按 [AstroWind](https://github.com/onwidget/astrowind) 模板的结构与设计语言搭建，**只保留下载页**：不包含功能宣传页，所有平台安装包与源码构建说明集中在一个页面里，并提供中英双语。
+Lumino（Rust 编写的开源 MIDI 编辑器）的官方站点。按 [AstroWind](https://github.com/onwidget/astrowind) 模板的结构与设计语言搭建，站点只有两页内容：**标题页**（`/`）与**下载页**（`/download/`），不含功能宣传页，提供中英双语。标题页单独占满一屏，只展示产品名 `Lumino: 新一代MIDI编辑器` 与下载入口。
 
 - **框架**：Astro 7（`output: 'static'`，`build.format: 'directory'`）
 - **样式**：Tailwind CSS 4（CSS-first，`@tailwindcss/vite`）
 - **图标**：`astro-icon` + `@iconify-json/tabler`
 - **字体**：`@fontsource-variable` 自托管 Inter / JetBrains Mono（构建期不请求第三方 CDN）
 - **国际化**：Astro i18n 路由，默认 `zh`（`/`），英文（`/en/`）
+- **Logo**：项目自带的应用图标（`public/logo.png`，由 `favicon.ico` 中的 256×256 PNG 提取），未另行绘制
 
 ## 开发
 
@@ -30,15 +31,19 @@ src/
 │   ├── CustomStyles.astro    # 浅色 / 深色调色板（--aw-* 变量）
 │   ├── Favicons.astro, Logo.astro
 │   ├── common/               # Metadata、ApplyColorMode、ToggleTheme、Intersect
-│   ├── pages/Download.astro  # 下载页正文（两个语言共用）
+│   ├── pages/
+│   │   ├── Cover.astro       # 标题页（标题 + 下载入口，两个语言共用）
+│   │   └── Download.astro    # 下载页正文（两个语言共用）
 │   ├── ui/Button.astro
 │   └── widgets/              # Header、Footer、LanguagePicker
 ├── layouts/
 │   ├── Layout.astro          # html 骨架 / 主题初始化 / SEO
 │   └── PageLayout.astro      # Header + main + Footer
 ├── pages/
-│   ├── index.astro           # /      （中文下载页）
-│   ├── en/index.astro        # /en/   （英文下载页）
+│   ├── index.astro           # /            标题页（中文）
+│   ├── download/index.astro  # /download/   下载页（中文）
+│   ├── en/index.astro        # /en/         标题页（英文）
+│   ├── en/download/index.astro # /en/download/ 下载页（英文）
 │   └── 404.astro             # 双语 404
 └── assets/styles/tailwind.css
 ```
@@ -50,11 +55,13 @@ src/
 **新增一门语言**（以日语为例）：
 
 1. `src/i18n/ui.ts`：在 `languages` 加 `ja: { label: '日本語', short: 'JA' }`，在 `dictionaries` 补一份 `ja` 字典；
-2. 新建 `src/pages/ja/index.astro`，内容与 `src/pages/en/index.astro` 相同，把 `const lang: Lang = 'ja'`；
+2. 新建 `src/pages/ja/index.astro` 与 `src/pages/ja/download/index.astro`，内容与 `src/pages/en/` 下同名文件相同，把 `const lang: Lang = 'ja'`；
 3. `astro.config.mjs` 的 `i18n.locales` 会自动读取 `localeCodes`，无需改动。
 
-URL 规则：默认语言不带前缀（`/`），其他语言带前缀（`/en/`、`/ja/`）。
+URL 规则：默认语言不带前缀（`/`、`/download/`），其他语言带前缀（`/en/`、`/en/download/`）。
 `<link rel="alternate" hreflang>`、`og:locale`、sitemap 的 `xhtml:link` 都由 `src/i18n/utils.ts` 自动生成。
+
+标题页文案在 `ui.ts` 的 `home.title`（渲染为整页 H1，`Lumino` 一词使用主色高亮）；首页 `<title>` 直接使用该字符串，不追加 `— Lumino` 后缀（`PageLayout` 的 `ignoreTitleTemplate`）。
 
 ## 主题与配色
 
@@ -68,16 +75,18 @@ URL 规则：默认语言不带前缀（`/`），其他语言带前缀（`/en/`�
 
 ## 旧链接
 
-站点改为单一下载页后，历史地址统一 301 到首页（见 `astro.config.mjs` 的 `redirects`）：
-`/download`、`/about`、`/features/*` → `/`。
+站点收敛为「标题页 + 下载页」后，历史地址统一 301 到首页（见 `astro.config.mjs` 的 `redirects`）：
+`/about`、`/features/*` → `/`。
 
 ## 维护提示
 
 | 要改什么 | 改哪里 |
 | --- | --- |
 | 下载地址 / 仓库 / 许可证链接、版本号 | `src/config.ts` 的 `APP` |
-| 页面文案（含标题、描述、平台说明） | `src/i18n/ui.ts` |
+| 标题页标题（含浏览器 `<title>`） | `src/i18n/ui.ts` 的 `home.title` / `meta.home.title` |
+| 页面文案（含描述、平台说明） | `src/i18n/ui.ts` |
 | 平台列表（名称、架构、说明） | `src/i18n/ui.ts` 的 `download.platforms` |
+| Logo | `src/config.ts` 的 `SITE.logo`（默认 `public/logo.png`） |
 | 品牌色 / 深浅色 | `src/components/CustomStyles.astro` |
 | 按钮等通用样式 | `src/assets/styles/tailwind.css` |
 

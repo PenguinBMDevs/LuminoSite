@@ -30,6 +30,7 @@ export interface Dictionary {
 
   meta: {
     titleTemplate: string;
+    home: { title: string; description: string };
     download: { title: string; description: string };
     notFound: { title: string; description: string };
   };
@@ -44,6 +45,13 @@ export interface Dictionary {
 
   header: {
     download: string;
+  };
+
+  home: {
+    /** Rendered verbatim as the page heading, e.g. `Lumino: 新一代MIDI编辑器`. */
+    title: string;
+    description: string;
+    cta: string;
   };
 
   download: {
@@ -88,6 +96,10 @@ const zh: Dictionary = {
 
   meta: {
     titleTemplate: '%s — Lumino',
+    home: {
+      title: 'Lumino: 新一代MIDI编辑器',
+      description: 'Lumino 官方网站。下载页提供 Windows、macOS 与 Linux 安装包，以及从源码构建的说明。',
+    },
     download: {
       title: '下载',
       description:
@@ -108,7 +120,13 @@ const zh: Dictionary = {
   },
 
   header: {
-    download: '下载 Lumino',
+    download: '下载',
+  },
+
+  home: {
+    title: 'Lumino: 新一代MIDI编辑器',
+    description: '下载页提供 Windows、macOS 与 Linux 安装包，以及从源码构建的说明。',
+    cta: '前往下载',
   },
 
   download: {
@@ -181,6 +199,11 @@ const en: Dictionary = {
 
   meta: {
     titleTemplate: '%s — Lumino',
+    home: {
+      title: 'Lumino: A Next‑Generation MIDI Editor',
+      description:
+        'The official Lumino site. The download page lists Windows, macOS and Linux builds, plus source build instructions.',
+    },
     download: {
       title: 'Download',
       description:
@@ -201,7 +224,14 @@ const en: Dictionary = {
   },
 
   header: {
-    download: 'Download',
+    download: 'Downloads',
+  },
+
+  home: {
+    title: 'Lumino: A Next‑Generation MIDI Editor',
+    description:
+      'The download page lists Windows, macOS and Linux builds, plus instructions for building Lumino from source.',
+    cta: 'Go to downloads',
   },
 
   download: {

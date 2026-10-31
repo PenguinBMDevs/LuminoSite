@@ -1,5 +1,5 @@
 ---
-import Download from '~/components/pages/Download.astro';
+import Cover from '~/components/pages/Cover.astro';
 import PageLayout from '~/layouts/PageLayout.astro';
 
 import { getDictionary, type Lang } from '~/i18n/ui';
@@ -8,6 +8,11 @@ const lang: Lang = 'en';
 const t = getDictionary(lang);
 ---
 
-<PageLayout lang={lang} title={t.meta.download.title} description={t.meta.download.description}>
-  <Download lang={lang} />
+<PageLayout
+  lang={lang}
+  title={t.meta.home.title}
+  description={t.meta.home.description}
+  ignoreTitleTemplate
+>
+  <Cover lang={lang} />
 </PageLayout>
