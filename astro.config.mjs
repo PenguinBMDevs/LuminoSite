@@ -18,8 +18,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  */
 const localePrefixes = Object.fromEntries(localeCodes.map((code) => [code, dictionaries[code].htmlLang]));
 
-/** Pages that existed before the site became cover + download. */
+/** Pages that existed before the site became cover + platforms. */
 const legacyRedirects = {
+  '/download': '/platforms/',
   '/about': '/',
   '/features': '/',
   '/features/editor': '/',

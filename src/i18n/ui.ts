@@ -1,9 +1,10 @@
 /**
  * Localised copy for the whole site.
  *
- * The site is a download page, so every user-facing string lives here: page copy,
- * navigation, metadata and the 404 page. Adding a language means adding one entry
- * to `dictionaries` (and to `languages`) — no component changes.
+ * The site has a title page (`/`) and an information page (`/platforms/`), so
+ * every user-facing string lives here: page copy, navigation, metadata and the
+ * 404 page. Adding a language means adding one entry to `dictionaries` (and to
+ * `languages`) — no component changes.
  */
 
 export const languages = {
@@ -31,7 +32,7 @@ export interface Dictionary {
   meta: {
     titleTemplate: string;
     home: { title: string; description: string };
-    download: { title: string; description: string };
+    platforms: { title: string; description: string };
     notFound: { title: string; description: string };
   };
 
@@ -52,11 +53,11 @@ export interface Dictionary {
     title: string;
     description: string;
     cta: string;
-    /** Secondary link to the download page (platform matrix + source build). */
+    /** Secondary link to the platforms page (platform matrix + source build). */
     infoLink: string;
   };
 
-  download: {
+  platforms: {
     title: string;
     subtitle: string;
     releaseButton: string;
@@ -74,13 +75,15 @@ export interface Dictionary {
     licenseHeading: string;
     licenseText: string;
     licenseLink: string;
+    /** Link back to the title page. */
+    backHome: string;
   };
 
   footer: {
     tagline: string;
     linksHeading: string;
-    /** Label of the internal link to the download page (not a download action). */
-    downloadPage: string;
+    /** Label of the internal link to the platforms page. */
+    platformsPage: string;
     links: Array<{ text: string; href: string }>;
     rights: string;
     licenseLine: string;
@@ -102,16 +105,16 @@ const zh: Dictionary = {
     titleTemplate: '%s — Lumino',
     home: {
       title: 'Lumino: 新一代MIDI编辑器',
-      description: 'Lumino 官方网站。下载页提供 Windows、macOS 与 Linux 安装包，以及从源码构建的说明。',
+      description: 'Lumino 官方网站。点击下载前往 GitHub Releases 获取安装包，平台清单与源码构建步骤见「平台与源码构建」。',
     },
-    download: {
-      title: '下载',
+    platforms: {
+      title: '平台与源码构建',
       description:
-        'Lumino 各平台安装包与源码构建说明。Windows、macOS 与 Linux 安装包统一发布于 GitHub Releases，也可用 cargo 从源码编译。',
+        'Lumino 支持的平台与安装包格式，以及从源码构建的完整步骤。Windows、macOS 与 Linux 安装包统一发布于 GitHub Releases。',
     },
     notFound: {
       title: '页面不存在',
-      description: '没有找到你访问的页面，请返回下载页获取 Lumino 的安装包。',
+      description: '没有找到你访问的页面，请返回首页。',
     },
   },
 
@@ -129,13 +132,13 @@ const zh: Dictionary = {
 
   home: {
     title: 'Lumino: 新一代MIDI编辑器',
-    description: '点击下载即可前往 GitHub Releases 获取安装包；安装包说明与源码构建步骤另见下载页。',
+    description: '点击下载即可前往 GitHub Releases 获取安装包；平台清单与源码构建步骤见「平台与源码构建」。',
     cta: '下载 Lumino',
     infoLink: '查看平台与源码构建',
   },
 
-  download: {
-    title: '下载 Lumino',
+  platforms: {
+    title: '平台与源码构建',
     subtitle: '安装包统一发布于 GitHub Releases 页面，请选择与你的操作系统和 CPU 架构匹配的文件。',
     releaseButton: '前往 GitHub Releases',
     versionLabel: '最新版本',
@@ -176,12 +179,13 @@ const zh: Dictionary = {
     licenseHeading: '许可证',
     licenseText: 'Lumino 以 AGPL-3.0-or-later 发布，源代码托管在 GitHub，可自由获取与审查。',
     licenseLink: '查看 LICENSE 原文',
+    backHome: '返回首页',
   },
 
   footer: {
     tagline: 'PenguinBMDevs 维护的开源 MIDI 编辑器，使用 Rust 编写。',
     linksHeading: '链接',
-    downloadPage: '下载页',
+    platformsPage: '平台与源码构建',
     links: [
       { text: 'GitHub 仓库', href: 'https://github.com/PenguinBMDevs/lumino-rs' },
       { text: '版本发布', href: 'https://github.com/PenguinBMDevs/lumino-rs/releases' },
@@ -195,7 +199,7 @@ const zh: Dictionary = {
     eyebrow: '404',
     title: '找不到这个页面',
     text: '你访问的链接可能已经失效，或者地址输入有误。',
-    backHome: '返回下载页',
+    backHome: '返回首页',
   },
 };
 
@@ -208,16 +212,16 @@ const en: Dictionary = {
     home: {
       title: 'Lumino: A Next‑Generation MIDI Editor',
       description:
-        'The official Lumino site. The download page lists Windows, macOS and Linux builds, plus source build instructions.',
+        'The official Lumino site. Downloading opens GitHub Releases; the platform matrix and source build steps live on the platforms page.',
     },
-    download: {
-      title: 'Download',
+    platforms: {
+      title: 'Platforms & build instructions',
       description:
-        'Download Lumino for Windows, macOS and Linux. Builds are published on GitHub Releases, and Lumino can also be built from source with cargo.',
+        'Platforms and package formats supported by Lumino, plus the full source build steps. Every build is published on GitHub Releases.',
     },
     notFound: {
       title: 'Page not found',
-      description: 'The page you are looking for does not exist. Head back to the download page to get Lumino.',
+      description: 'The page you are looking for does not exist. Head back to the home page.',
     },
   },
 
@@ -230,19 +234,19 @@ const en: Dictionary = {
   },
 
   header: {
-    download: 'Downloads',
+    download: 'Download',
   },
 
   home: {
     title: 'Lumino: A Next‑Generation MIDI Editor',
     description:
-      'Downloading takes you straight to GitHub Releases; platform notes and source build steps live on the download page.',
+      'Downloading takes you straight to GitHub Releases; the platform matrix and source build steps live on the platforms page.',
     cta: 'Download Lumino',
     infoLink: 'Platforms & build instructions',
   },
 
-  download: {
-    title: 'Download Lumino',
+  platforms: {
+    title: 'Platforms & build instructions',
     subtitle:
       'Every build is published on GitHub Releases. Pick the file that matches your operating system and CPU architecture.',
     releaseButton: 'Go to GitHub Releases',
@@ -285,12 +289,13 @@ const en: Dictionary = {
     licenseText:
       'Lumino is released under AGPL-3.0-or-later. The source code is hosted on GitHub and can be read and reviewed freely.',
     licenseLink: 'Read the LICENSE',
+    backHome: 'Back to home',
   },
 
   footer: {
     tagline: 'An open source MIDI editor written in Rust, maintained by PenguinBMDevs.',
     linksHeading: 'Links',
-    downloadPage: 'Downloads page',
+    platformsPage: 'Platforms & build instructions',
     links: [
       { text: 'GitHub repository', href: 'https://github.com/PenguinBMDevs/lumino-rs' },
       { text: 'Releases', href: 'https://github.com/PenguinBMDevs/lumino-rs/releases' },
@@ -304,7 +309,7 @@ const en: Dictionary = {
     eyebrow: '404',
     title: 'Page not found',
     text: 'The link may be outdated, or the address was typed incorrectly.',
-    backHome: 'Back to downloads',
+    backHome: 'Back to home',
   },
 };
 

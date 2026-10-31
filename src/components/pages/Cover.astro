@@ -43,7 +43,7 @@ const remainder = rest.length > 0 ? `:${rest.join(':')}` : '';
       <!-- Download buttons always land on GitHub Releases. -->
       <Button variant="primary" text={t.home.cta} href={APP.releases} target="_blank" icon="tabler:download" />
       <a
-        href={localizePath('/download/', lang)}
+        href={localizePath('/platforms/', lang)}
         class="inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-heading"
       >
         {t.home.infoLink}

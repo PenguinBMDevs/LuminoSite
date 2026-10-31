@@ -1,8 +1,8 @@
 # Lumino 官网
 
-Lumino（Rust 编写的开源 MIDI 编辑器）的官方站点。按 [AstroWind](https://github.com/onwidget/astrowind) 模板的结构与设计语言搭建，站点只有两页内容：**标题页**（`/`）与**下载页**（`/download/`），不含功能宣传页，提供中英双语。标题页单独占满一屏，只展示产品名 `Lumino: 新一代MIDI编辑器` 与下载入口。
+Lumino（Rust 编写的开源 MIDI 编辑器）的官方站点。按 [AstroWind](https://github.com/onwidget/astrowind) 模板的结构与设计语言搭建，站点只有两页内容：**标题页**（`/`）与**平台与源码构建**页（`/platforms/`），不含功能宣传页，提供中英双语。标题页单独占满一屏，只展示产品名 `Lumino: 新一代MIDI编辑器` 与下载入口。
 
-**下载按钮统一直连 GitHub Releases**（页头按钮、标题页主按钮、下载页主按钮都指向 `APP.releases`，新标签页打开）；下载页本身只承载平台清单与源码构建说明，从标题页的「查看平台与源码构建」和页脚进入。
+**下载按钮统一直连 GitHub Releases**（页头按钮、标题页主按钮、下载页主按钮都指向 `APP.releases`，新标签页打开）；「平台与源码构建」页本身只承载平台清单与源码构建说明，从标题页的「查看平台与源码构建」和页脚进入。
 
 - **框架**：Astro 7（`output: 'static'`，`build.format: 'directory'`）
 - **样式**：Tailwind CSS 4（CSS-first，`@tailwindcss/vite`）
@@ -35,7 +35,7 @@ src/
 │   ├── common/               # Metadata、ApplyColorMode、ToggleTheme、Intersect
 │   ├── pages/
 │   │   ├── Cover.astro       # 标题页（标题 + 下载入口，两个语言共用）
-│   │   └── Download.astro    # 下载页正文（两个语言共用）
+│   │   └── Platforms.astro   # 平台与源码构建页正文（两个语言共用）
 │   ├── ui/Button.astro
 │   └── widgets/              # Header、Footer、LanguagePicker
 ├── layouts/
@@ -43,9 +43,9 @@ src/
 │   └── PageLayout.astro      # Header + main + Footer
 ├── pages/
 │   ├── index.astro           # /            标题页（中文）
-│   ├── download/index.astro  # /download/   下载页（中文）
+│   ├── platforms/index.astro # /platforms/  平台与源码构建（中文）
 │   ├── en/index.astro        # /en/         标题页（英文）
-│   ├── en/download/index.astro # /en/download/ 下载页（英文）
+│   ├── en/platforms/index.astro # /en/platforms/ 平台与源码构建（英文）
 │   └── 404.astro             # 双语 404
 └── assets/styles/tailwind.css
 ```
@@ -57,7 +57,7 @@ src/
 **新增一门语言**（以日语为例）：
 
 1. `src/i18n/ui.ts`：在 `languages` 加 `ja: { label: '日本語', short: 'JA' }`，在 `dictionaries` 补一份 `ja` 字典；
-2. 新建 `src/pages/ja/index.astro` 与 `src/pages/ja/download/index.astro`，内容与 `src/pages/en/` 下同名文件相同，把 `const lang: Lang = 'ja'`；
+2. 新建 `src/pages/ja/index.astro` 与 `src/pages/ja/platforms/index.astro`，内容与 `src/pages/en/` 下同名文件相同，把 `const lang: Lang = 'ja'`；
 3. `astro.config.mjs` 的 `i18n.locales` 会自动读取 `localeCodes`，无需改动。
 
 URL 规则：默认语言不带前缀（`/`、`/download/`），其他语言带前缀（`/en/`、`/en/download/`）。
@@ -78,7 +78,7 @@ URL 规则：默认语言不带前缀（`/`、`/download/`），其他语言带�
 ## 旧链接
 
 站点收敛为「标题页 + 下载页」后，历史地址统一 301 到首页（见 `astro.config.mjs` 的 `redirects`）：
-`/about`、`/features/*` → `/`。
+`/download` → `/platforms/`，`/about`、`/features/*` → `/`。
 
 ## 维护提示
 

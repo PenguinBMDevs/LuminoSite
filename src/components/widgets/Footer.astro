@@ -17,7 +17,7 @@ const year = new Date().getFullYear();
 
 /** The download page is internal, the rest come from the dictionary (external). */
 const navLinks = [
-  { text: t.footer.downloadPage, href: localizePath('/download/', lang), external: false },
+  { text: t.footer.platformsPage, href: localizePath('/platforms/', lang), external: false },
   ...t.footer.links.map((link) => ({ ...link, external: true })),
 ];
 ---
