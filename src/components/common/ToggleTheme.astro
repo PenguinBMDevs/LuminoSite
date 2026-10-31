@@ -3,16 +3,17 @@ import { Icon } from 'astro-icon/components';
 
 export interface Props {
   iconClass?: string;
+  label?: string;
 }
 
-const { iconClass = 'w-6 h-6' } = Astro.props;
+const { iconClass = 'w-5 h-5', label = 'Toggle theme' } = Astro.props;
 ---
 
 <button
   type="button"
   data-aw-toggle-theme
   class="inline-flex items-center justify-center rounded-lg p-2.5 text-muted transition hover:bg-surface hover:text-heading focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-  aria-label="切换深色 / 浅色主题"
+  aria-label={label}
   aria-pressed="false"
 >
   <Icon name="tabler:sun" class={`${iconClass} hidden dark:inline-block`} />

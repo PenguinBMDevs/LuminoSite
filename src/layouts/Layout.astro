@@ -9,25 +9,29 @@ import Metadata from '~/components/common/Metadata.astro';
 import CustomStyles from '~/components/CustomStyles.astro';
 import Favicons from '~/components/Favicons.astro';
 
-import { I18N } from '~/config';
+import { getDictionary, type Lang } from '~/i18n/ui';
 import type { MetaData } from '~/types';
 
 export interface Props {
-  metadata?: MetaData;
+  lang: Lang;
+  title?: string;
+  description?: string;
+  robots?: MetaData['robots'];
 }
 
-const { metadata = {} } = Astro.props;
+const { lang, title, description, robots } = Astro.props;
+const t = getDictionary(lang);
 ---
 
 <!doctype html>
-<html lang={I18N.language} dir={I18N.textDirection}>
+<html lang={t.htmlLang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <ApplyColorMode />
     <CustomStyles />
-    <Metadata {...metadata} />
+    <Metadata lang={lang} title={title} description={description} robots={robots} />
     <Favicons />
     <slot name="head" />
   </head>

@@ -1,0 +1,45 @@
+---
+import { languages, type Lang } from '~/i18n/ui';
+import { localizePath } from '~/i18n/utils';
+
+export interface Props {
+  lang: Lang;
+  label: string;
+}
+
+const { lang, label } = Astro.props;
+
+/*
+ * The 404 page is a single unlocalised document, so there is no `/<lang>/404/`
+ * route to link to: switching language from there goes to that locale's home.
+ */
+const isNotFoundPage = /(^|\/)404(\.html)?\/?$/.test(Astro.url.pathname);
+const currentPath = isNotFoundPage ? '/' : Astro.url.pathname;
+
+const options = (Object.keys(languages) as Array<Lang>).map((code) => ({
+  code,
+  short: languages[code].short,
+  label: languages[code].label,
+  href: localizePath(currentPath, code),
+}));
+---
+
+<nav aria-label={label} class="flex items-center rounded-full border border-line bg-surface p-0.5">
+  {
+    options.map((option) => (
+      <a
+        href={option.href}
+        hreflang={option.code}
+        lang={option.code}
+        aria-label={option.label}
+        aria-current={option.code === lang ? 'true' : undefined}
+        class:list={[
+          'rounded-full px-2.5 py-1 text-xs font-semibold transition',
+          option.code === lang ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-heading',
+        ]}
+      >
+        {option.short}
+      </a>
+    ))
+  }
+</nav>

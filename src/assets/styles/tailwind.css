@@ -1,20 +1,18 @@
 @import 'tailwindcss';
 
-@plugin "@tailwindcss/typography";
-
 /*
  * AstroWind-style design tokens.
  *
  * Every colour used by the site funnels through the `--aw-*` variables defined in
  * `src/components/CustomStyles.astro`, which is where the light/dark palettes live.
- * That keeps theming in exactly one file and lets widgets stay palette-agnostic.
+ * That keeps theming in exactly one file and lets components stay palette-agnostic.
  */
 @variant dark (&:where(.dark, .dark *));
 
 /*
  * `inline` is essential: it makes every utility expand to `var(--aw-…)` instead of
- * baking the resolved colour into `:root`. Without it, widgets that opt into a
- * local `dark` scope (`<WidgetWrapper isDark>`) would inherit light-theme colours.
+ * baking the resolved colour into `:root`, so the variables keep resolving per
+ * element (needed when a section is served in the opposite colour mode).
  */
 @theme inline {
   --color-primary: var(--aw-color-primary);
@@ -86,52 +84,6 @@
   box-shadow: none;
 }
 
-#header.expanded nav {
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  bottom: 70px !important;
-  padding: 0 5px;
-}
-
-.dropdown:focus .dropdown-menu,
-.dropdown:focus-within .dropdown-menu,
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-/* Current page in the header navigation. */
-#header nav .aw-link-active {
-  @apply text-link;
-}
-
-/* Hamburger → cross: three bars that collapse into an X when `.expanded`. */
-[data-aw-toggle-menu] > span[data-bar] {
-  @apply absolute left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full bg-current transition-all duration-300;
-}
-[data-aw-toggle-menu] > span[data-bar='top'] {
-  top: 13px;
-}
-[data-aw-toggle-menu] > span[data-bar='middle'] {
-  top: 19px;
-}
-[data-aw-toggle-menu] > span[data-bar='bottom'] {
-  top: 25px;
-}
-[data-aw-toggle-menu].expanded > span[data-bar='top'] {
-  top: 19px;
-  transform: translateX(-50%) rotate(45deg);
-}
-[data-aw-toggle-menu].expanded > span[data-bar='middle'] {
-  opacity: 0;
-  transform: translateX(-50%) scaleX(0.4);
-}
-[data-aw-toggle-menu].expanded > span[data-bar='bottom'] {
-  top: 19px;
-  transform: translateX(-50%) rotate(-45deg);
-}
-
 /*
  * Scroll reveal. Elements carrying `data-animate` fade up once they enter the
  * viewport (see common/Intersect.astro). Without JS, or with reduced motion,
@@ -164,19 +116,6 @@ html:not(.js) [data-animate],
   }
 }
 
-/* Inline code inside prose keeps the theme colours and loses the plugin's backticks. */
-.prose :where(code):not(:where(pre *)) {
-  background-color: color-mix(in oklab, var(--aw-color-text-default) 8%, transparent);
-  border-radius: 0.25rem;
-  padding: 0.125rem 0.375rem;
-  font-weight: 500;
-}
-.prose :where(code):not(:where(pre *))::before,
-.prose :where(code):not(:where(pre *))::after {
-  content: none;
-}
-
-.prose :where(pre) {
-  border: 1px solid var(--aw-color-border);
-  border-radius: 0.75rem;
+::selection {
+  background-color: color-mix(in oklab, var(--aw-color-primary) 25%, transparent);
 }

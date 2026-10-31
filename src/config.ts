@@ -1,9 +1,8 @@
 /**
- * Site configuration.
+ * Non-localised site configuration.
  *
- * AstroWind keeps this in `src/config.yaml` and exposes it through a custom
- * integration (`astrowind:config`). This project has no integration layer, so the
- * same data lives in a typed module — same shape, no YAML parsing at build time.
+ * Localised copy (titles, descriptions, navigation labels) lives in `src/i18n/ui.ts`;
+ * only the values that are identical in every language belong here.
  */
 
 export type ThemeName = 'system' | 'light' | 'dark' | 'light:only' | 'dark:only';
@@ -17,28 +16,21 @@ export const SITE = {
   trailingSlash: true,
 };
 
-/** Default SEO metadata, overridable per page through `PageLayout`'s `metadata` prop. */
+/** Default social metadata; pages override the localised parts. */
 export const METADATA = {
-  title: {
-    default: 'Lumino — 为 Black MIDI 打造的新一代 MIDI 编辑器',
-    template: '%s — Lumino',
-  },
-  description:
-    'Lumino 是一个使用 Rust 构建的跨平台 MIDI 编辑器，基于 wgpu 与 iced，面向 Black MIDI 高密度工程，提供低延迟渲染、多后端 MIDI I/O 与实时协作。',
-  keywords: ['MIDI 编辑器', 'Black MIDI', 'Rust', 'wgpu', 'iced', 'Lumino'],
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    site_name: 'Lumino',
+    siteName: 'Lumino',
     type: 'website',
     images: [
       {
         url: '/hero-screenshot.png',
-        width: 1200,
-        height: 630,
-        alt: 'Lumino MIDI 编辑器钢琴卷帘界面',
+        width: 1920,
+        height: 1032,
+        alt: 'Lumino',
       },
     ],
   },
@@ -47,17 +39,12 @@ export const METADATA = {
   },
 };
 
-export const I18N = {
-  language: 'zh-CN',
-  textDirection: 'ltr' as const,
-};
-
 /** `system` follows the OS preference; `light:only` / `dark:only` freeze the theme. */
 export const UI = {
   theme: 'system' as ThemeName,
 };
 
-/** External resources referenced from navigation, pages and widgets. */
+/** External resources referenced from the header, download page and footer. */
 export const APP = {
   repository: 'https://github.com/PenguinBMDevs/lumino-rs',
   releases: 'https://github.com/PenguinBMDevs/lumino-rs/releases',

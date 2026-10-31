@@ -3,27 +3,31 @@ import Footer from '~/components/widgets/Footer.astro';
 import Header from '~/components/widgets/Header.astro';
 
 import Layout from '~/layouts/Layout.astro';
-import { footerData, headerData } from '~/navigation';
+import { getDictionary, type Lang } from '~/i18n/ui';
 import type { MetaData } from '~/types';
 
 export interface Props {
-  metadata?: MetaData;
+  lang: Lang;
+  title?: string;
+  description?: string;
+  robots?: MetaData['robots'];
 }
 
-const { metadata } = Astro.props;
+const { lang, title, description, robots } = Astro.props;
+const t = getDictionary(lang);
 ---
 
-<Layout metadata={metadata}>
+<Layout lang={lang} title={title} description={description} robots={robots}>
   <slot name="head" slot="head" />
   <a
     href="#main"
     class="sr-only rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50"
   >
-    跳到主内容
+    {t.a11y.skipToContent}
   </a>
-  {Astro.slots.has('header') ? <slot name="header" /> : <Header {...headerData} isSticky showToggleTheme />}
+  <Header lang={lang} />
   <main id="main" class="flex-1">
     <slot />
   </main>
-  {Astro.slots.has('footer') ? <slot name="footer" /> : <Footer {...footerData} />}
+  <Footer lang={lang} />
 </Layout>

@@ -1,20 +1,24 @@
 ---
 import { SITE } from '~/config';
-import { getHomePermalink } from '~/utils/permalinks';
+import { getDictionary, type Lang } from '~/i18n/ui';
+import { getLangFromPath, localizePath } from '~/i18n/utils';
 
 export interface Props {
   class?: string;
   /** Hides the wordmark, leaving only the glyph. */
   iconOnly?: boolean;
+  lang?: Lang;
 }
 
 const { class: className = '', iconOnly = false } = Astro.props;
+const lang = Astro.props.lang ?? getLangFromPath(Astro.url.pathname);
+const t = getDictionary(lang);
 ---
 
 <a
-  href={getHomePermalink()}
+  href={localizePath('/', lang)}
   class:list={['group inline-flex items-center gap-2.5 no-underline', className]}
-  aria-label={`${SITE.name} 首页`}
+  aria-label={t.a11y.home}
 >
   <svg
     viewBox="0 0 32 32"

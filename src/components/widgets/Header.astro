@@ -1,202 +1,83 @@
 ---
 import { Icon } from 'astro-icon/components';
+
 import Logo from '~/components/Logo.astro';
-import ToggleMenu from '~/components/common/ToggleMenu.astro';
 import ToggleTheme from '~/components/common/ToggleTheme.astro';
 import Button from '~/components/ui/Button.astro';
+import LanguagePicker from '~/components/widgets/LanguagePicker.astro';
 
-import { UI } from '~/config';
-import type { CallToAction } from '~/types';
-import { isSamePath } from '~/utils/permalinks';
-
-interface MenuLink {
-  text?: string;
-  href?: string;
-  ariaLabel?: string;
-  icon?: string;
-  links?: Array<MenuLink>;
-}
+import { APP } from '~/config';
+import { getDictionary, type Lang } from '~/i18n/ui';
 
 export interface Props {
-  id?: string;
-  links?: Array<MenuLink>;
-  actions?: Array<CallToAction>;
+  lang: Lang;
   isSticky?: boolean;
-  isFullWidth?: boolean;
   showToggleTheme?: boolean;
-  position?: 'center' | 'left' | 'right';
 }
 
-const {
-  id = 'header',
-  links = [],
-  actions = [],
-  isSticky = false,
-  isFullWidth = false,
-  showToggleTheme = false,
-  position = 'center',
-} = Astro.props;
-
-const currentPath = Astro.url.pathname;
-const canToggleTheme = showToggleTheme && UI.theme !== 'light:only' && UI.theme !== 'dark:only';
+const { lang, isSticky = true, showToggleTheme = true } = Astro.props;
+const t = getDictionary(lang);
 ---
 
 <header
   class:list={[
     { sticky: isSticky, relative: !isSticky },
-    'top-0 z-40 mx-auto flex-none w-full border-b border-line/70 transition-[background-color] duration-200',
+    'top-0 z-40 flex-none border-b border-line/70 transition-[background-color] duration-200',
   ]}
   {...isSticky ? { 'data-aw-sticky-header': true } : {}}
-  {...id ? { id } : {}}
+  id="header"
 >
   <div class="absolute inset-0"></div>
-  <div
-    class:list={[
-      'relative mx-auto w-full px-4 py-3 text-default sm:px-6 lg:px-8',
-      { 'max-w-7xl': !isFullWidth },
-      position === 'center' ? 'lg:grid lg:grid-cols-3 lg:items-center' : 'lg:flex lg:justify-between',
-    ]}
-  >
-    <div class="flex justify-between">
-      <Logo />
-      <div class="flex items-center lg:hidden">
-        <ToggleMenu />
-      </div>
-    </div>
+  <div class="relative mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:px-8">
+    <Logo />
 
-    <nav
-      id="header-nav"
-      aria-label="主导航"
-      class="fixed inset-x-0 top-16 bottom-0 z-40 hidden overflow-y-auto border-b border-line bg-page px-4 pt-4 pb-8 shadow-lg lg:static lg:z-auto lg:mx-5 lg:flex lg:w-auto lg:items-center lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:justify-self-center"
-    >
-      <ul
-        class="flex w-full flex-col text-xl font-medium tracking-[0.01rem] lg:w-auto lg:flex-row lg:justify-center lg:self-center lg:text-[0.9375rem]"
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <LanguagePicker lang={lang} label={t.a11y.languagePicker} />
+      {showToggleTheme && <ToggleTheme label={t.a11y.toggleTheme} />}
+
+      <Button
+        variant="primary"
+        text={t.header.download}
+        icon="tabler:download"
+        href={APP.releases}
+        target="_blank"
+        class="hidden px-4 py-2.5 text-sm font-semibold shadow-none sm:inline-flex"
+      />
+
+      <a
+        href={APP.releases}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t.header.download}
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:bg-secondary sm:hidden"
       >
-        {
-          links.map(({ text, href, links: children }) => (
-            <li class:list={['relative', { dropdown: Boolean(children?.length) }]}>
-              {children?.length ? (
-                <>
-                  <button
-                    type="button"
-                    class="flex items-center whitespace-nowrap rounded-lg px-4 py-3 transition hover:text-link"
-                  >
-                    {text}
-                    <Icon name="tabler:chevron-down" class="ml-0.5 hidden w-3.5 h-3.5 lg:inline" />
-                  </button>
-                  <ul class="dropdown-menu mt-1 rounded-lg pl-4 font-medium lg:absolute lg:top-full lg:left-0 lg:mt-0 lg:ml-0 lg:hidden lg:min-w-[13rem] lg:border lg:border-line lg:bg-page/95 lg:p-2 lg:pl-2 lg:shadow-xl lg:backdrop-blur-md dark:lg:bg-slate-900/95">
-                    {children.map((child) => (
-                      <li>
-                        <a
-                          class:list={[
-                            'block whitespace-nowrap rounded-md px-4 py-2 transition hover:bg-surface hover:text-link dark:hover:bg-slate-800 dark:hover:text-white',
-                            { 'aw-link-active': isSamePath(currentPath, child.href) },
-                          ]}
-                          href={child.href}
-                        >
-                          {child.text}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <a
-                  class:list={[
-                    'flex items-center rounded-lg px-4 py-3 whitespace-nowrap transition hover:text-link',
-                    { 'aw-link-active': isSamePath(currentPath, href) },
-                  ]}
-                  href={href}
-                  aria-current={isSamePath(currentPath, href) ? 'page' : undefined}
-                >
-                  {text}
-                </a>
-              )}
-            </li>
-          ))
-        }
-      </ul>
-
-      {
-        actions.length > 0 && (
-          <div class="mt-6 flex flex-col gap-3 border-t border-line pt-6 lg:hidden">
-            {actions.map((action) => (
-              <Button {...action} class="w-full" />
-            ))}
-          </div>
-        )
-      }
-    </nav>
-
-    <div
-      class:list={[
-        'hidden items-center gap-1 lg:flex',
-        position === 'left' ? 'lg:justify-self-start' : 'lg:justify-self-end',
-      ]}
-    >
-      {canToggleTheme && <ToggleTheme />}
-      {
-        actions.length > 0 && (
-          <span class="ml-3 flex items-center gap-2">
-            {actions.map((action) => (
-              <Button {...action} class="px-5 py-2.5 text-sm font-semibold shadow-none" />
-            ))}
-          </span>
-        )
-      }
+        <Icon name="tabler:download" class="h-5 w-5" />
+      </a>
     </div>
   </div>
 </header>
 
 <script>
-  const HEADER_ID = 'header';
+  const header = document.getElementById('header');
 
-  const initHeader = () => {
-    const header = document.getElementById(HEADER_ID);
-    if (!header) return;
+  if (header?.hasAttribute('data-aw-sticky-header')) {
+    let ticking = false;
 
-    const toggle = header.querySelector<HTMLElement>('[data-aw-toggle-menu]');
-    const nav = header.querySelector<HTMLElement>('#header-nav');
-
-    const closeMenu = () => {
-      toggle?.classList.remove('expanded');
-      toggle?.setAttribute('aria-expanded', 'false');
-      nav?.classList.add('hidden');
-      document.body.classList.remove('overflow-hidden');
+    const apply = () => {
+      header.classList.toggle('scroll', window.scrollY > 60);
+      ticking = false;
     };
 
-    toggle?.addEventListener('click', () => {
-      const expanded = toggle.classList.toggle('expanded');
-      toggle.setAttribute('aria-expanded', String(expanded));
-      nav?.classList.toggle('hidden', !expanded);
-      document.body.classList.toggle('overflow-hidden', expanded);
-    });
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(apply);
+      },
+      { passive: true }
+    );
 
-    nav?.addEventListener('click', (event) => {
-      if ((event.target as HTMLElement | null)?.closest('a')) closeMenu();
-    });
-
-    window.matchMedia('(min-width: 1024px)').addEventListener('change', closeMenu);
-
-    if (header.hasAttribute('data-aw-sticky-header')) {
-      let ticking = false;
-      const apply = () => {
-        header.classList.toggle('scroll', window.scrollY > 60);
-        ticking = false;
-      };
-      window.addEventListener(
-        'scroll',
-        () => {
-          if (ticking) return;
-          ticking = true;
-          window.requestAnimationFrame(apply);
-        },
-        { passive: true }
-      );
-      apply();
-    }
-  };
-
-  initHeader();
-  document.addEventListener('astro:page-load', initHeader);
+    apply();
+  }
 </script>
