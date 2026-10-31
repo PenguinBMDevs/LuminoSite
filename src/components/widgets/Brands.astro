@@ -1,0 +1,54 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+import type { Brands as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  items = [],
+  variant = 'grid',
+  id,
+  isDark = false,
+  classes = {},
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline} />
+
+  <ul
+    class:list={[
+      'flex flex-wrap items-center justify-center',
+      variant === 'inline' ? 'gap-x-10 gap-y-6' : 'gap-3 sm:gap-4',
+    ]}
+  >
+    {
+      items.map(({ name, icon, href }) => {
+        const content = (
+          <>
+            {icon && <Icon name={icon} class="h-5 w-5 shrink-0" />}
+            <span class="text-sm font-medium">{name}</span>
+          </>
+        );
+        const className =
+          'flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-muted transition hover:border-primary/30 hover:text-heading';
+        return (
+          <li>
+            {href ? (
+              <a class={className} href={href} target="_blank" rel="noopener noreferrer">
+                {content}
+              </a>
+            ) : (
+              <span class={variant === 'inline' ? 'flex items-center gap-2 text-muted' : className}>{content}</span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</WidgetWrapper>

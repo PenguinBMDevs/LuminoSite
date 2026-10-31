@@ -1,251 +1,290 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PageHeader from '../../components/PageHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
 
-const tools = ['选择工具 (Pointer)', '橡皮擦 (Eraser)', '画笔 (Pencil)', '力度刷'];
-const interactions = ['框选音符', '批量移动', '复制 / 粘贴 / 删除', '撤销 / 重做（History 快照）'];
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Content from '~/components/widgets/Content.astro';
+import Features from '~/components/widgets/Features.astro';
+import PageHeader from '~/components/widgets/PageHeader.astro';
+import Timeline from '~/components/widgets/Timeline.astro';
+
+import { APP } from '~/config';
+import type { Item, TimelineEntry } from '~/types';
+import { getPermalink } from '~/utils/permalinks';
+
+/**
+ * MIDI 编辑器页：钢琴卷帘、编辑工具与分层状态管理。
+ *
+ * 组件顺序与首页保持一致：
+ * PageHeader → Content（钢琴卷帘示意）→ Features（工具 / 操作两列）
+ * → Timeline（isDark，编辑器状态分层）→ CallToAction（引导至渲染器）。
+ */
+
+/** 旧页面的四种编辑工具，名称保持原样。 */
+const editTools: Array<Item> = [
+  {
+    title: '选择工具 Pointer',
+    description: '单击选中音符，拖拽即可调整音高、起始时间与长度。',
+    icon: 'tabler:mouse',
+  },
+  {
+    title: '橡皮擦 Eraser',
+    description: '一键移除误触的音符，也可以在时间轴上连续擦除整段内容。',
+    icon: 'tabler:eraser',
+  },
+  {
+    title: '画笔 Pencil',
+    description: '直接在钢琴卷帘上写入音符，拖动鼠标即可当场决定时值。',
+    icon: 'tabler:pencil',
+  },
+  {
+    title: '力度刷',
+    description: '沿音符拖动改写力度值，整段表情一次刷完，无需逐个点开属性。',
+    icon: 'tabler:adjustments',
+  },
+];
+
+/** 与工具一一对应的四种交互操作。 */
+const interactions: Array<Item> = [
+  {
+    title: '框选音符',
+    description: '拉出选择框，按时间与音高范围圈定音符，为批量操作做准备。',
+    icon: 'tabler:select-all',
+  },
+  {
+    title: '批量移动',
+    description: '整块拖动选中的音符，音高与时间偏移按同一增量生效。',
+    icon: 'tabler:box-multiple',
+  },
+  {
+    title: '复制 · 粘贴 · 删除',
+    description: '选区可以复制、粘贴与批量删除，重复乐句不必重复手绘。',
+    icon: 'tabler:copy',
+  },
+  {
+    title: '撤销 · 重做（History 快照）',
+    description: '每次提交生成快照，批量操作也能一次回退或一次复原。',
+    icon: 'tabler:history',
+  },
+];
+
+/**
+ * `Features` 按行填充网格，因此交错排列两份列表后，
+ * 左列恰好是编辑工具，右列恰好是交互操作。
+ */
+const toolMatrix: Array<Item> = editTools.flatMap((tool, index) => {
+  const interaction = interactions[index];
+  return interaction ? [tool, interaction] : [tool];
+});
+
+/** 左侧文案下方的三条要点，对应钢琴卷帘的三项能力。 */
+const editorHighlights: Array<Item> = [
+  {
+    title: '交互状态机驱动',
+    description: '鼠标、键盘与触控输入共用一套状态机，工具切换不会残留半截手势。',
+    icon: 'tabler:mouse',
+  },
+  {
+    title: '面向高密度工程',
+    description: '百万级音符下视口滚动与绘制保持流畅，缩放与平移不受数据量拖累。',
+    icon: 'tabler:gauge',
+  },
+  {
+    title: '多轨编排',
+    description: '在多条音轨之间切换与叠放，把复杂的层次结构写在同一个工程里。',
+    icon: 'tabler:layers-intersect',
+  },
+];
+
+/** 旧页面的四张架构角色卡片：模块名做 label，中文职责做 title，description 说明拆分理由。 */
+const stateLayers: Array<TimelineEntry> = [
+  {
+    label: 'CanvasState',
+    title: '几何状态与视口滚动',
+    description: '视口偏移、缩放与网格几何集中在这里，滚动只触碰几何，不牵动音符数据。',
+    icon: 'tabler:layout-2',
+  },
+  {
+    label: 'EditorData',
+    title: '音符数据与音轨缓存',
+    description: '音符集合、音轨信息与缓存统一收口，写入走同一条路径，避免出现多份副本。',
+    icon: 'tabler:database',
+  },
+  {
+    label: 'InteractionState',
+    title: '交互状态机与命中检测',
+    description: '当前工具、拖拽中的选区与悬停命中都由状态机维护，交互分支不再散落在渲染代码里。',
+    icon: 'tabler:mouse',
+  },
+  {
+    label: 'History',
+    title: '撤销与重做快照',
+    description: '快照按提交记录回放，复杂的批量移动与删除也能干净地退回上一个状态。',
+    icon: 'tabler:history',
+  },
+];
+
+/** 键盘条与音符网格共用八行，示意音符正好对齐键位。 */
+const keyRows = Array.from({ length: 8 }, (_, index) => index % 2 === 1);
+const gridCells = Array.from({ length: 64 });
+
+/** 示意音符的位置用百分比描述，类名写成字面量以便 Tailwind 扫描。 */
+const demoNotes = [
+  { at: 'top-[13.5%] left-[6%] w-[22%]', selected: false },
+  { at: 'top-[26%] left-[34%] w-[15%]', selected: false },
+  { at: 'top-[38.5%] left-[57%] w-[24%]', selected: false },
+  { at: 'top-[63.5%] left-[72%] w-[19%]', selected: false },
+  { at: 'top-[76%] left-[20%] w-[16%]', selected: true },
+];
+
+/** 力度条的百分比高度同样写成类名，示意图不需要任何行内样式。 */
+const velocityBars = [
+  'h-[42%]',
+  'h-[66%]',
+  'h-[80%]',
+  'h-[55%]',
+  'h-[90%]',
+  'h-[46%]',
+  'h-[70%]',
+  'h-[85%]',
+  'h-[52%]',
+  'h-[76%]',
+  'h-[60%]',
+  'h-[94%]',
+];
 ---
 
-<Layout 
-  title="MIDI 编辑器 - Lumino" 
-  description="Lumino 的钢琴卷帘与多轨 MIDI 编辑器，支持音符绘制、力度编辑、选择框与 Black MIDI 级别的高密度音符处理。"
+<PageLayout
+  metadata={{
+    title: 'MIDI 编辑器',
+    description:
+      'Lumino 的 MIDI 编辑器基于钢琴卷帘与多轨工作流，提供 Pointer、Eraser、Pencil 与力度刷等编辑工具，并支持框选批量移动与 History 快照撤销，专为高密度 Black MIDI 工程优化。',
+  }}
 >
-  <Header />
-  <main>
-    <PageHeader
-      tag="Editor"
-      title="MIDI 编辑器"
-      description="专业钢琴卷帘与多轨工作流，从音符绘制到力度微调，每一个交互都为效率设计。"
-    />
+  <PageHeader
+    tagline="Editor"
+    title="MIDI 编辑器"
+    subtitle="专业钢琴卷帘与多轨工作流，从音符绘制到力度微调，每一次交互都为效率设计。"
+  />
 
-    <section class="content-section">
-      <div class="container">
-        <div class="editor-showcase">
-          <div class="editor-visual">
-            <div class="piano-roll-demo">
-              <div class="keys">
-                {Array.from({length: 8}).map((_, i) => (
-                  <div class="key" class:list={i % 2 === 0 ? 'black' : 'white'}></div>
-                ))}
+  <Content
+    tagline="核心编辑能力"
+    title="钢琴卷帘，音符写在想要的位置"
+    subtitle="钢琴卷帘与多轨编排合一，高密度工程下依然跟得上手速。"
+    content="Lumino 的编辑器状态机统一接管鼠标、键盘与触控交互：单击插入音符、拖拽调整时值、框选批量整理，所有编辑动作都经过优化，在高密度 Black MIDI 工程下依旧顺滑。"
+    items={editorHighlights}
+  >
+    <div slot="visual" class="rounded-2xl border border-line bg-slate-950 p-4 shadow-xl shadow-slate-950/10">
+      <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <span class="flex min-w-0 items-center gap-2">
+          <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400"></span>
+          <span class="truncate font-mono text-xs text-slate-200">piano-roll · track 01</span>
+        </span>
+        <span
+          class="shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-slate-400"
+        >
+          Pencil · 120 BPM
+        </span>
+      </div>
+
+      <div class="mt-3 flex aspect-[16/9] overflow-hidden rounded-xl border border-white/10 bg-slate-950">
+        <div class="flex w-8 shrink-0 flex-col border-r border-white/10 sm:w-10">
+          {
+            keyRows.map((isBlack) => (
+              <div class="flex flex-1 border-b border-white/5 px-1 last:border-b-0">
+                <span
+                  class:list={[
+                    'block rounded-[2px]',
+                    isBlack ? 'w-2/3 bg-slate-700' : 'w-full bg-slate-300/85',
+                  ]}
+                >
+                </span>
               </div>
-              <div class="roll-grid">
-                {Array.from({length: 32}).map((_, i) => (
-                  <div class="grid-cell"></div>
-                ))}
-                <div class="demo-note" style="top: 24px; left: 12%; width: 20%"></div>
-                <div class="demo-note" style="top: 72px; left: 32%; width: 15%"></div>
-                <div class="demo-note" style="top: 48px; left: 56%; width: 24%"></div>
-                <div class="demo-note" style="top: 96px; left: 74%; width: 18%"></div>
-                <div class="demo-note selected" style="top: 120px; left: 22%; width: 16%"></div>
-                <div class="selection-box"></div>
-              </div>
-            </div>
-            <div class="velocity-ruler">
-              {Array.from({length: 16}).map((_, i) => {
-                const height = [40, 65, 80, 55, 90, 45, 70, 85, 50, 75, 60, 95, 35, 78, 52, 88][i];
-                return <div class="vbar" style={`height: ${height}%`}></div>;
-              })}
-            </div>
+            ))
+          }
+        </div>
+
+        <div class="relative flex-1">
+          <div class="grid h-full grid-cols-8 grid-rows-8">
+            {gridCells.map(() => (
+              <div class="border-r border-b border-white/5"></div>
+            ))}
           </div>
-          <div class="editor-details">
-            <span class="tag">核心编辑能力</span>
-            <h2 class="section-title">钢琴卷帘，<br/><span class="accent-text">所想即所得</span></h2>
-            <p class="lead">
-              Lumino 的编辑器状态机管理鼠标、键盘与触控交互，从单击插入音符到框选批量操作，所有编辑动作都经过精心优化，确保在高密度 Black MIDI 工程下依旧丝滑。
-            </p>
-            <div class="details-grid">
-              <div class="detail-block">
-                <h4>编辑工具</h4>
-                <ul class="feature-list">
-                  {tools.map(t => <li>{t}</li>)}
-                </ul>
+
+          {
+            demoNotes.map((note) => (
+              <div
+                class:list={[
+                  'absolute h-[10.5%] rounded-[3px] bg-gradient-to-r from-indigo-400/90 to-cyan-300/90',
+                  note.selected ? 'z-10 ring-2 ring-cyan-300/80' : '',
+                  note.at,
+                ]}
+              >
               </div>
-              <div class="detail-block">
-                <h4>交互操作</h4>
-                <ul class="feature-list">
-                  {interactions.map(item => <li>{item}</li>)}
-                </ul>
-              </div>
-            </div>
+            ))
+          }
+
+          <div
+            class="absolute top-[61%] left-[13%] h-[30%] w-[42%] rounded-[3px] border border-dashed border-cyan-300/70 bg-cyan-400/10"
+            aria-hidden="true">
           </div>
         </div>
       </div>
-    </section>
 
-    <section class="content-section bg-secondary">
-      <div class="container">
-        <div class="section-header">
-          <span class="tag">Architecture</span>
-          <h2 class="section-title">分层状态管理</h2>
-          <p class="section-subtitle">将原本臃肿的 God Object 拆分为多个内聚子模块，每个模块只负责单一职责。</p>
+      <div class="mt-3 rounded-xl border border-white/10 bg-white/5 p-3">
+        <div class="mb-2 flex items-center justify-between gap-2 font-mono text-[10px] text-slate-400">
+          <span>velocity · 力度</span>
+          <span class="text-cyan-300">0 – 127</span>
         </div>
-        <div class="spec-grid">
-          <div class="spec-card">
-            <div class="value">CanvasState</div>
-            <div class="label">几何状态与视口滚动</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">EditorData</div>
-            <div class="label">音符数据与音轨缓存</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">InteractionState</div>
-            <div class="label">交互状态机与命中检测</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">History</div>
-            <div class="label">撤销 / 重做快照</div>
-          </div>
+        <div class="flex h-12 items-end gap-1 sm:gap-1.5">
+          {
+            velocityBars.map((height) => (
+              <div
+                class:list={['flex-1 rounded-t-[2px] bg-gradient-to-t from-indigo-500/70 to-cyan-300/80', height]}
+              >
+              </div>
+            ))
+          }
         </div>
       </div>
-    </section>
-  </main>
-  <Footer />
-</Layout>
 
-<style>
-  .editor-showcase {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    gap: 64px;
-    align-items: center;
-  }
+      <div class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-indigo-400/25 bg-indigo-500/10 px-3 py-2.5">
+        <span class="flex items-center gap-2 text-xs font-semibold text-indigo-300">
+          <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+          选择框已框定 1 个音符
+        </span>
+        <span class="font-mono text-[10px] text-cyan-300">History · 快照</span>
+      </div>
+    </div>
+  </Content>
 
-  .editor-visual {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+  <Features
+    tagline="工具与操作"
+    title="写入与整理，手感一致"
+    subtitle="四种编辑工具负责写入与修饰，四种交互操作负责选择与整理，互为搭档。"
+    items={toolMatrix}
+    columns={2}
+  />
 
-  .piano-roll-demo {
-    display: flex;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    aspect-ratio: 16 / 10;
-  }
+  <Timeline
+    isDark
+    tagline="Architecture"
+    title="分层状态管理"
+    subtitle="把原本臃肿的 God Object 拆成多个内聚子模块，每层只管一件事，改动一处不再牵动全局。"
+    items={stateLayers}
+  />
 
-  .keys {
-    width: 56px;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .key {
-    flex: 1;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .key.white { background: #2a2a2a; }
-  .key.black { background: #1a1a1a; }
-
-  .roll-grid {
-    flex: 1;
-    position: relative;
-    background: 
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px), 
-      linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 12.5% 25%;
-  }
-
-  .grid-cell {
-    width: 12.5%;
-    height: 25%;
-    float: left;
-    border-right: 1px solid rgba(255,255,255,0.03);
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-  }
-
-  .demo-note {
-    position: absolute;
-    height: 20px;
-    border-radius: 4px;
-    background: var(--accent-gradient);
-    box-shadow: 0 2px 8px rgba(184, 115, 51, 0.25);
-    opacity: 0.9;
-  }
-
-  .demo-note.selected {
-    box-shadow: 0 0 0 2px #ffffff, 0 4px 12px rgba(184, 115, 51, 0.3);
-    opacity: 1;
-  }
-
-  .selection-box {
-    position: absolute;
-    top: 110px;
-    left: 18%;
-    width: 24%;
-    height: 48px;
-    border: 1px dashed var(--gold);
-    background: rgba(212, 175, 55, 0.08);
-    border-radius: 4px;
-  }
-
-  .velocity-ruler {
-    display: flex;
-    align-items: flex-end;
-    gap: 6px;
-    height: 90px;
-    padding: 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-  }
-
-  .vbar {
-    flex: 1;
-    background: var(--accent-gradient);
-    border-radius: 3px 3px 0 0;
-    opacity: 0.8;
-  }
-
-  .editor-details {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-top: 16px;
-  }
-
-  .detail-block h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--gold);
-    margin-bottom: 16px;
-  }
-
-  .bg-secondary {
-    background: var(--bg-secondary);
-  }
-
-  .section-header {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 48px;
-    text-align: center;
-    align-items: center;
-  }
-
-  @media (max-width: 900px) {
-    .editor-showcase {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-    .details-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+  <CallToAction
+    layout="card"
+    title="编辑完成，去听听它的声音"
+    subtitle="渲染器以 xsynth、KDMAPI 与 winmm 多后端低延迟输出，并用 wgpu 呈现 GPU 加速可视化。"
+    actions={[
+      {
+        text: '查看渲染器',
+        href: getPermalink('/features/performance'),
+        variant: 'primary',
+        icon: 'tabler:arrow-right',
+      },
+      { text: '免费下载', href: APP.releases, variant: 'secondary', icon: 'tabler:download', target: '_blank' },
+    ]}
+  />
+</PageLayout>

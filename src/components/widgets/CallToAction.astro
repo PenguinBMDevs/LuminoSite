@@ -1,0 +1,107 @@
+---
+import Button from '~/components/ui/Button.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+import type { CallToAction as CtaType, Widget } from '~/types';
+import { mergeClasses } from '~/utils/utils';
+
+interface Props extends Widget {
+  title?: string;
+  subtitle?: string;
+  tagline?: string;
+  actions?: string | Array<CtaType>;
+  /** `card` (boxed, centred) or `banner` (full-width band on the primary colour). */
+  layout?: 'card' | 'banner';
+}
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  actions = await Astro.slots.render('actions'),
+  layout = 'card',
+  id,
+  isDark = false,
+  classes = {},
+} = Astro.props;
+
+const actionList = Array.isArray(actions) ? actions : [];
+const isBanner = layout === 'banner';
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`}>
+  <div
+    class:list={[
+      'relative overflow-hidden rounded-2xl px-6 py-12 text-center md:py-16',
+      isBanner
+        ? 'bg-gradient-to-br from-primary via-primary to-secondary text-white'
+        : 'border border-line bg-surface',
+    ]}
+  >
+    {
+      !isBanner && (
+        <div
+          class="pointer-events-none absolute -top-24 left-1/2 h-56 w-[36rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+          aria-hidden="true"
+        />
+      )
+    }
+
+    <div class="relative">
+      {
+        tagline && (
+          <p
+            class:list={[
+              'text-sm font-bold tracking-widest uppercase',
+              isBanner ? 'text-white/80' : 'text-secondary dark:text-accent',
+            ]}
+            set:html={tagline}
+          />
+        )
+      }
+      {
+        title && (
+          <h2
+            class:list={[
+              'font-heading text-3xl leading-tighter font-bold tracking-tight text-balance md:text-4xl',
+              isBanner ? 'text-white' : 'text-heading',
+              tagline ? 'mt-2' : '',
+            ]}
+            set:html={title}
+          />
+        )
+      }
+      {
+        subtitle && (
+          <p
+            class:list={[
+              'mx-auto mt-4 max-w-2xl text-pretty md:text-lg',
+              isBanner ? 'text-white/85' : 'text-muted',
+            ]}
+            set:html={subtitle}
+          />
+        )
+      }
+
+      <div class="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+        {actionList.length > 0 ? (
+          actionList.map((action) => (
+            <Button
+              {...action}
+              class={mergeClasses(
+                'w-full sm:w-auto',
+                isBanner
+                  ? action.variant === 'primary'
+                    ? 'border-white bg-white text-primary hover:border-white hover:bg-white/90 hover:text-primary'
+                    : 'border-white/70 text-white hover:border-white hover:bg-white/10 hover:text-white'
+                  : ''
+              )}
+            />
+          ))
+        ) : (
+          <Fragment set:html={actions} />
+        )}
+      </div>
+    </div>
+  </div>
+</WidgetWrapper>

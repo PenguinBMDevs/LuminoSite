@@ -1,260 +1,150 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PageHeader from '../../components/PageHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
 
-const backends = [
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Content from '~/components/widgets/Content.astro';
+import Features2 from '~/components/widgets/Features2.astro';
+import Note from '~/components/widgets/Note.astro';
+import PageHeader from '~/components/widgets/PageHeader.astro';
+import Stats from '~/components/widgets/Stats.astro';
+
+import { APP } from '~/config';
+
+/**
+ * MIDI 后端页：KDMAPI / winmm / xsynth。
+ *
+ * 组件顺序与首页保持一致：
+ * PageHeader → Features2（三张后端卡片）→ Content（I/O 架构示意）
+ * → Stats（实时合成与回放指标）→ Note（平台限制）→ CallToAction（下载引导）。
+ */
+
+const backendItems = [
   {
-    name: 'KDMAPI',
-    fullName: 'KDMAPI / OmniMIDI',
-    desc: '专为 Black MIDI 与高音符密度场景优化，绕过传统 winmm 限制，提供极低的 MIDI 输出延迟与更高的并发事件吞吐能力。',
-    badge: 'Windows',
-    highlight: true,
+    title: 'KDMAPI',
+    description:
+      'KDMAPI / OmniMIDI（Windows）。专为 Black MIDI 与高音符密度场景优化，绕过传统 winmm 限制，提供极低的 MIDI 输出延迟与更高的并发事件吞吐能力。',
+    icon: 'tabler:bolt',
   },
   {
-    name: 'winmm',
-    fullName: 'Windows Multimedia API',
-    desc: '系统级原生 MIDI 输出接口，兼容性最广，适合普通监听与通用回放场景，无需额外驱动。',
-    badge: 'Windows',
-    highlight: false,
+    title: 'winmm',
+    description:
+      'Windows Multimedia API（Windows）。系统级原生 MIDI 输出接口，兼容性最广，适合普通监听与通用回放场景，无需额外驱动。',
+    icon: 'tabler:brand-windows',
   },
   {
-    name: 'xsynth',
-    fullName: 'xsynth Realtime',
-    desc: '纯软件合成器后端，基于 SoundFont 实时渲染，适合无硬件 MIDI 设备时的快速预览与跨平台一致音色。',
-    badge: 'Cross-platform',
-    highlight: true,
-  }
+    title: 'xsynth',
+    description:
+      'xsynth Realtime（跨平台）。纯软件合成器后端，基于 SoundFont 实时渲染，适合无硬件 MIDI 设备时的快速预览与跨平台一致音色。',
+    icon: 'tabler:waveform',
+  },
+];
+
+/** 实时引擎的四项指标，保持旧页面的「数值 + 说明」写法。 */
+const realtimeStats = [
+  { amount: 'xsynth', title: '纯软件 SoundFont 合成' },
+  { amount: '事件驱动', title: '音符触发直达后端' },
+  { amount: '低延迟', title: '毫秒级事件调度' },
+  { amount: '可切换', title: '运行时切换后端' },
+];
+
+/** I/O 架构示意图的三个输出节点。 */
+const ioNodes = [
+  { name: 'KDMAPI', platform: 'Windows' },
+  { name: 'winmm', platform: 'Windows' },
+  { name: 'xsynth', platform: '跨平台' },
 ];
 ---
 
-<Layout 
-  title="MIDI 后端 - Lumino" 
-  description="Lumino 同时支持 KDMAPI、winmm 与 xsynth 多种 MIDI I/O 后端，满足创作、监听与回放的不同需求。"
+<PageLayout
+  metadata={{
+    title: 'MIDI 后端',
+    description:
+      'Lumino 同时支持 KDMAPI、winmm 与 xsynth 三种 MIDI 后端：KDMAPI 面向 Black MIDI 极限吞吐，winmm 保证通用兼容，xsynth 提供跨平台 SoundFont 合成并支持运行时切换。',
+  }}
 >
-  <Header />
-  <main>
-    <PageHeader
-      tag="Backends"
-      title="MIDI 后端"
-      description="多后端并行支持，根据场景自由切换输出方式，兼顾低延迟、兼容性与跨平台一致性。"
-    />
+  <PageHeader
+    badge="多后端支持"
+    tagline="Backends"
+    title="MIDI 后端"
+    subtitle="多后端并行支持，根据场景自由切换输出方式，兼顾低延迟、兼容性与跨平台一致性。"
+  />
 
-    <section class="content-section">
-      <div class="container">
-        <div class="backend-intro">
-          <div class="intro-text">
-            <span class="tag">I/O 架构</span>
-            <h2 class="section-title">一个编辑器，<br/><span class="accent-text">多种输出选择</span></h2>
-            <p class="lead">
-              Lumino 的 MIDI I/O 层不绑定单一后端。无论是 Black MIDI 玩家追求的极限延迟，还是普通用户需要的即开即用，Lumino 都能在设置中一键切换。
-            </p>
-          </div>
-          <div class="backend-graphic">
-            <div class="io-node editor">Lumino Editor</div>
-            <div class="io-arrows">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <div class="io-outputs">
-              <div class="io-node out">KDMAPI</div>
-              <div class="io-node out">winmm</div>
-              <div class="io-node out">xsynth</div>
-            </div>
-          </div>
+  <Features2
+    tagline="可选后端"
+    title="三种后端，覆盖三种使用场景"
+    subtitle="同一份工程可以交给任意后端输出，切换只影响声音，不影响编辑。"
+    items={backendItems}
+    columns={3}
+  />
+
+  <Content
+    tagline="I/O 架构"
+    title="一个编辑器，多种输出选择"
+    subtitle="MIDI I/O 层不绑定单一后端，音频输出方式在设置里决定。"
+    content="无论是 Black MIDI 玩家追求的极限延迟，还是普通用户需要的即开即用，Lumino 都能在设置中一键切换。编辑器只把音符事件写入统一的输出队列，由所选后端负责把它们送达驱动或合成器，因此切换后端不需要改动工程本身，也不会影响编辑体验。"
+  >
+    <div
+      slot="visual"
+      class="overflow-hidden rounded-2xl border border-line bg-slate-950 shadow-xl shadow-slate-950/10"
+    >
+      <div class="flex items-center justify-between border-b border-white/10 bg-slate-900/70 px-4 py-3">
+        <span class="font-mono text-xs tracking-wide text-slate-400">midi-io</span>
+        <span class="rounded-full bg-primary/15 px-2 py-0.5 font-mono text-[10px] text-indigo-300">3 个后端</span>
+      </div>
+      <div class="flex flex-col items-center p-4 sm:p-6">
+        <div class="w-full rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-4 py-3 text-center">
+          <p class="font-mono text-sm font-semibold tracking-wide text-indigo-200">Lumino Editor</p>
+          <p class="mt-1 text-[11px] text-slate-400">统一 MIDI 事件队列</p>
         </div>
 
-        <div class="backend-cards">
-          {backends.map((b) => (
-            <div class={`backend-card ${b.highlight ? 'featured' : ''}`}>
-              <div class="backend-header">
-                <h3>{b.name}</h3>
-                <span class="backend-badge">{b.badge}</span>
+        <div class="relative h-9 w-full" aria-hidden="true">
+          <div class="absolute top-0 left-1/2 h-3 w-px -translate-x-1/2 bg-white/20"></div>
+          <div class="absolute top-3 right-[16.67%] left-[16.67%] h-px bg-white/20"></div>
+          <div class="absolute top-3 left-[16.67%] h-6 w-px bg-cyan-400/50"></div>
+          <div class="absolute top-3 left-1/2 h-6 w-px -translate-x-1/2 bg-white/20"></div>
+          <div class="absolute top-3 left-[83.33%] h-6 w-px bg-cyan-400/50"></div>
+        </div>
+
+        <div class="grid w-full grid-cols-3 gap-2">
+          {
+            ioNodes.map((node) => (
+              <div class="rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-center transition hover:border-cyan-400/40">
+                <p class="font-mono text-xs font-semibold text-slate-200">{node.name}</p>
+                <p class="mt-1 text-[10px] text-slate-400">{node.platform}</p>
               </div>
-              <p class="backend-full">{b.fullName}</p>
-              <p class="backend-desc">{b.desc}</p>
-            </div>
-          ))}
+            ))
+          }
         </div>
       </div>
-    </section>
+    </div>
+  </Content>
 
-    <section class="content-section bg-secondary">
-      <div class="container">
-        <div class="section-header">
-          <span class="tag">Realtime</span>
-          <h2 class="section-title">实时合成与回放</h2>
-          <p class="section-subtitle">实时引擎负责将编辑器中的音符事件准时送达所选后端，确保编辑与聆听同步。</p>
-        </div>
-        <div class="spec-grid">
-          <div class="spec-card">
-            <div class="value">xsynth</div>
-            <div class="label">纯软件 SoundFont 合成</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">事件驱动</div>
-            <div class="label">音符触发直达后端</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">低延迟</div>
-            <div class="label">毫秒级事件调度</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">可切换</div>
-            <div class="label">运行时切换后端</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  <Footer />
-</Layout>
+  <Stats
+    tagline="Realtime"
+    title="实时合成与回放"
+    subtitle="实时引擎负责将编辑器中的音符事件准时送达所选后端，确保编辑与聆听同步。"
+    stats={realtimeStats}
+  />
 
-<style>
-  .backend-intro {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
-    align-items: center;
-    margin-bottom: 80px;
-  }
+  <Note
+    icon="tabler:alert-triangle"
+    title="平台限制"
+    text="KDMAPI 与 winmm 都是 Windows 专用后端：KDMAPI 需要 OmniMIDI 等兼容驱动，winmm 使用系统原生 MIDI 输出、无需额外驱动。xsynth 是纯软件合成后端，在 Windows、macOS 与 Linux 上都能使用，也是跨平台一致音色的首选。"
+  />
 
-  .intro-text {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .backend-graphic {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    align-items: center;
-    padding: 40px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-  }
-
-  .io-node {
-    padding: 16px 28px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    text-align: center;
-  }
-
-  .io-node.editor {
-    width: 100%;
-    background: var(--accent-gradient);
-    color: #0a0a0a;
-  }
-
-  .io-arrows {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .io-arrows span {
-    width: 2px;
-    height: 16px;
-    background: var(--copper);
-  }
-
-  .io-outputs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    width: 100%;
-  }
-
-  .io-node.out {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-  }
-
-  .backend-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .backend-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 32px;
-    transition: all 0.25s ease;
-  }
-
-  .backend-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(184, 115, 51, 0.4);
-  }
-
-  .backend-card.featured {
-    border-color: rgba(184, 115, 51, 0.4);
-    background: linear-gradient(180deg, rgba(184, 115, 51, 0.06) 0%, var(--bg-card) 100%);
-  }
-
-  .backend-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  .backend-header h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .backend-badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(184, 115, 51, 0.12);
-    color: var(--gold-light);
-    border: 1px solid rgba(184, 115, 51, 0.25);
-  }
-
-  .backend-full {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-  }
-
-  .backend-desc {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    line-height: 1.7;
-  }
-
-  .bg-secondary {
-    background: var(--bg-secondary);
-  }
-
-  .section-header {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 48px;
-    text-align: center;
-    align-items: center;
-  }
-
-  @media (max-width: 900px) {
-    .backend-intro {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-    .backend-cards {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+  <CallToAction
+    layout="banner"
+    title="选好后端，立刻开始"
+    subtitle="Lumino 在 Windows、macOS 与 Linux 上均可运行。下载最新版本，在设置中自由切换 KDMAPI、winmm 与 xsynth。"
+    actions={[
+      { text: '免费下载', href: APP.releases, variant: 'primary', icon: 'tabler:download', target: '_blank' },
+      {
+        text: '查看 GitHub',
+        href: APP.repository,
+        variant: 'secondary',
+        icon: 'tabler:brand-github',
+        target: '_blank',
+      },
+    ]}
+  />
+</PageLayout>

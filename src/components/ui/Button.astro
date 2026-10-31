@@ -1,0 +1,56 @@
+---
+import { Icon } from 'astro-icon/components';
+import { twMerge } from 'tailwind-merge';
+
+import type { CallToAction } from '~/types';
+
+export interface Props extends CallToAction {
+  /** Slot fallback: the slot content wins over the `text` prop. */
+  class?: string;
+}
+
+const {
+  variant = 'secondary',
+  target,
+  text = '',
+  icon = '',
+  class: className = '',
+  type,
+  href,
+  ariaLabel,
+  ...rest
+} = Astro.props;
+
+const slotText = await Astro.slots.render('default');
+const label = slotText || text;
+
+const variants: Record<NonNullable<CallToAction['variant']>, string> = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  tertiary: 'btn-tertiary',
+  link: 'inline-flex items-center font-medium text-link transition hover:underline',
+};
+
+const isButton = type === 'button' || type === 'submit' || type === 'reset';
+const classes = twMerge(variants[variant] ?? variants.secondary, className);
+---
+
+{
+  isButton ? (
+    <button type={type} class={classes} aria-label={ariaLabel} {...rest}>
+      <Fragment set:html={label} />
+      {icon && <Icon name={icon} class="ml-1.5 -mr-0.5 inline-block h-5 w-5" />}
+    </button>
+  ) : (
+    <a
+      href={href}
+      class={classes}
+      aria-label={ariaLabel}
+      {...target ? { target, rel: 'noopener noreferrer' } : {}}
+      {...rest}
+    >
+      <Fragment set:html={label} />
+      {icon && <Icon name={icon} class="ml-1.5 -mr-0.5 inline-block h-5 w-5" />}
+    </a>
+  )
+}

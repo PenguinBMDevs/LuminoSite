@@ -1,0 +1,102 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import Button from '~/components/ui/Button.astro';
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+import type { Content as ContentProps } from '~/types';
+
+export interface Props extends ContentProps {
+  /** Alignment of the text column; `center` matches the Headline used elsewhere. */
+  align?: 'left' | 'center';
+}
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  content = '',
+  items = [],
+  isReversed = false,
+  callToAction,
+  align = 'left',
+  id,
+  isDark = false,
+  classes = {},
+} = Astro.props;
+
+const hasVisual = Astro.slots.has('visual');
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={classes?.container}>
+  <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+    <div class:list={[{ 'lg:order-2': isReversed }]}>
+      {
+        align === 'center' ? (
+          <Headline
+            title={title}
+            subtitle={subtitle}
+            tagline={tagline}
+            classes={{ container: 'max-w-none md:mx-0', ...(classes?.headline ?? {}) }}
+          />
+        ) : (
+          <div class="max-w-none">
+            {tagline && (
+              <p class="text-sm font-bold tracking-widest text-secondary uppercase dark:text-accent">{tagline}</p>
+            )}
+            {title && (
+              <h2 class="mt-2 font-heading text-3xl leading-tighter font-bold tracking-tight text-balance text-heading md:text-4xl">
+                {title}
+              </h2>
+            )}
+            {subtitle && <p class="mt-4 text-lg text-pretty text-muted">{subtitle}</p>}
+          </div>
+        )
+      }
+
+      {
+        content && (
+          <div
+            class="mt-5 space-y-4 leading-relaxed text-muted [&_a]:text-link [&_a]:underline [&_strong]:font-semibold [&_strong]:text-heading"
+            set:html={content}
+          />
+        )
+      }
+
+      {
+        items.length > 0 && (
+          <ul class="mt-7 space-y-4">
+            {items.map(({ title: itemTitle, description, icon }) => (
+              <li class="flex gap-3">
+                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Icon name={icon ?? 'tabler:check'} class="h-3.5 w-3.5" />
+                </span>
+                <div>
+                  {itemTitle && <h3 class="font-semibold text-heading">{itemTitle}</h3>}
+                  {description && <p class="text-sm leading-relaxed text-muted">{description}</p>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        callToAction && (
+          <div class="mt-8">
+            <Button {...callToAction} />
+          </div>
+        )
+      }
+    </div>
+
+    {
+      hasVisual && (
+        <div class:list={[{ 'lg:order-1': isReversed }, 'relative']}>
+          <slot name="visual" />
+        </div>
+      )
+    }
+  </div>
+</WidgetWrapper>

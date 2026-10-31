@@ -1,0 +1,56 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import Button from '~/components/ui/Button.astro';
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+import type { Steps as Props } from '~/types';
+import { padIndex } from '~/utils/utils';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  items = [],
+  callToAction,
+  id,
+  isDark = false,
+  classes = {},
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={classes?.container}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline} />
+
+  {
+    items.length > 0 && (
+      <ol class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {items.map(({ title: itemTitle, description, icon }, index) => (
+          <li
+            class="relative flex h-full flex-col rounded-xl border border-line bg-page p-6 dark:bg-slate-900/40"
+            data-animate
+            style={`--animate-delay: ${index * 70}ms`}
+          >
+            <div class="mb-4 flex items-center justify-between">
+              <span class="inline-flex h-9 items-center rounded-full bg-primary/10 px-3 font-mono text-sm font-bold text-primary ring-1 ring-primary/20">
+                {padIndex(index + 1)}
+              </span>
+              {icon && <Icon name={icon} class="h-5 w-5 text-accent" />}
+            </div>
+            {itemTitle && <h3 class="text-base font-bold text-heading">{itemTitle}</h3>}
+            {description && <p class="mt-2 text-sm leading-relaxed text-muted" set:html={description} />}
+          </li>
+        ))}
+      </ol>
+    )
+  }
+
+  {
+    callToAction && (
+      <div class="mt-10 text-center">
+        <Button {...callToAction} />
+      </div>
+    )
+  }
+</WidgetWrapper>

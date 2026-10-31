@@ -1,0 +1,47 @@
+---
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+import type { Metrics as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  metrics = [],
+  isReversed = false,
+  id,
+  isDark = false,
+  classes = {},
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={classes?.container}>
+  <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+    <div class:list={[{ 'lg:order-2': isReversed }]}>
+      <Headline
+        align="left"
+        title={title}
+        subtitle={subtitle}
+        tagline={tagline}
+        classes={{ container: 'mb-6 max-w-none md:mx-0 md:mb-8', ...(classes?.headline ?? {}) }}
+      />
+      <slot name="content" />
+    </div>
+
+    <div class:list={[{ 'lg:order-1': isReversed }, 'grid grid-cols-2 gap-4 sm:gap-5']}>
+      {
+        metrics.map(({ amount, title: metricTitle, description, icon }, index) => (
+          <div class="card p-5 sm:p-6" data-animate style={`--animate-delay: ${index * 60}ms`}>
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-heading text-2xl font-bold tracking-tight text-heading sm:text-3xl">{amount}</span>
+              {icon && <span class="font-mono text-[10px] tracking-wide text-accent uppercase">{icon}</span>}
+            </div>
+            <div class="mt-2 text-sm font-semibold text-primary dark:text-accent">{metricTitle}</div>
+            {description && <p class="mt-1.5 text-sm leading-relaxed text-muted">{description}</p>}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</WidgetWrapper>

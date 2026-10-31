@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+@plugin "@tailwindcss/typography";
+
+/*
+ * AstroWind-style design tokens.
+ *
+ * Every colour used by the site funnels through the `--aw-*` variables defined in
+ * `src/components/CustomStyles.astro`, which is where the light/dark palettes live.
+ * That keeps theming in exactly one file and lets widgets stay palette-agnostic.
+ */
+@variant dark (&:where(.dark, .dark *));
+
+/*
+ * `inline` is essential: it makes every utility expand to `var(--aw-…)` instead of
+ * baking the resolved colour into `:root`. Without it, widgets that opt into a
+ * local `dark` scope (`<WidgetWrapper isDark>`) would inherit light-theme colours.
+ */
+@theme inline {
+  --color-primary: var(--aw-color-primary);
+  --color-secondary: var(--aw-color-secondary);
+  --color-accent: var(--aw-color-accent);
+
+  --color-heading: var(--aw-color-text-heading);
+  --color-default: var(--aw-color-text-default);
+  --color-muted: var(--aw-color-text-muted);
+  --color-link: var(--aw-color-link, var(--aw-color-primary));
+
+  --color-surface: var(--aw-color-bg-surface);
+  --color-line: var(--aw-color-border);
+  --color-page: var(--aw-color-bg-page);
+  --color-dark: var(--aw-color-bg-page-dark);
+
+  --font-sans:
+    var(--aw-font-sans, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC',
+    sans-serif;
+  --font-heading:
+    var(--aw-font-heading, var(--aw-font-sans, ui-sans-serif)), ui-sans-serif, system-ui, sans-serif, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  --font-mono:
+    var(--aw-font-mono, ui-monospace), ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+/*
+ * Buttons. Mirrors AstroWind: a transparent outlined base plus the primary and
+ * tertiary variants, so `ui/Button.astro` only has to map a `variant` to a class.
+ */
+@utility btn {
+  @apply inline-flex items-center justify-center rounded-full border border-line bg-transparent px-6 py-3.5 text-center text-base font-medium leading-snug text-default transition duration-200 ease-in hover:border-default hover:bg-surface focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-page focus:outline-none md:px-8 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800 cursor-pointer;
+}
+
+@utility btn-primary {
+  @apply btn border-primary bg-primary font-semibold text-white hover:border-secondary hover:bg-secondary hover:text-white dark:border-primary dark:bg-primary dark:text-white dark:hover:border-secondary dark:hover:bg-secondary;
+}
+
+@utility btn-secondary {
+  @apply btn;
+}
+
+@utility btn-tertiary {
+  @apply btn border-none shadow-none text-muted hover:bg-transparent hover:text-heading dark:text-gray-400 dark:hover:text-white;
+}
+
+@utility card {
+  @apply rounded-xl border border-line bg-surface;
+}
+
+/*
+ * Sticky header: solid page background on phones, translucent page background
+ * with blur on desktop (the `scroll` class is toggled by Header.astro).
+ */
+#header.scroll > div:first-child {
+  @apply bg-page lg:backdrop-blur-md;
+  box-shadow: 0 0.375rem 1.5rem 0 rgb(15 23 42 / 8%);
+}
+
+@media (width >= 64rem) {
+  #header.scroll > div:first-child {
+    background-color: color-mix(in srgb, var(--aw-color-bg-page) 90%, transparent);
+  }
+}
+
+.dark #header.scroll > div:first-child {
+  @apply border-b border-white/10;
+  box-shadow: none;
+}
+
+#header.expanded nav {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 70px !important;
+  padding: 0 5px;
+}
+
+.dropdown:focus .dropdown-menu,
+.dropdown:focus-within .dropdown-menu,
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Current page in the header navigation. */
+#header nav .aw-link-active {
+  @apply text-link;
+}
+
+/* Hamburger → cross: three bars that collapse into an X when `.expanded`. */
+[data-aw-toggle-menu] > span[data-bar] {
+  @apply absolute left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full bg-current transition-all duration-300;
+}
+[data-aw-toggle-menu] > span[data-bar='top'] {
+  top: 13px;
+}
+[data-aw-toggle-menu] > span[data-bar='middle'] {
+  top: 19px;
+}
+[data-aw-toggle-menu] > span[data-bar='bottom'] {
+  top: 25px;
+}
+[data-aw-toggle-menu].expanded > span[data-bar='top'] {
+  top: 19px;
+  transform: translateX(-50%) rotate(45deg);
+}
+[data-aw-toggle-menu].expanded > span[data-bar='middle'] {
+  opacity: 0;
+  transform: translateX(-50%) scaleX(0.4);
+}
+[data-aw-toggle-menu].expanded > span[data-bar='bottom'] {
+  top: 19px;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+/*
+ * Scroll reveal. Elements carrying `data-animate` fade up once they enter the
+ * viewport (see common/Intersect.astro). Without JS, or with reduced motion,
+ * they are simply visible.
+ */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--animate-delay, 0ms);
+}
+
+html:not(.js) [data-animate],
+[data-animate].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Inline code inside prose keeps the theme colours and loses the plugin's backticks. */
+.prose :where(code):not(:where(pre *)) {
+  background-color: color-mix(in oklab, var(--aw-color-text-default) 8%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-weight: 500;
+}
+.prose :where(code):not(:where(pre *))::before,
+.prose :where(code):not(:where(pre *))::after {
+  content: none;
+}
+
+.prose :where(pre) {
+  border: 1px solid var(--aw-color-border);
+  border-radius: 0.75rem;
+}

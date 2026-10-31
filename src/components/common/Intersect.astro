@@ -1,0 +1,44 @@
+---
+/**
+ * Progressive reveal: elements marked with `data-animate` fade in the first time
+ * they scroll into view. Without JS (or with reduced motion) the global stylesheet
+ * keeps them visible, so this is a pure enhancement.
+ */
+---
+
+<script>
+  const SELECTOR = '[data-animate]:not(.is-visible)';
+
+  const reveal = (element: Element) => element.classList.add('is-visible');
+
+  const observe = () => {
+    const elements = Array.from(document.querySelectorAll(SELECTOR));
+    if (!elements.length) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion || typeof IntersectionObserver === 'undefined') {
+      elements.forEach(reveal);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          reveal(entry.target);
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.05 }
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    // Safety net: never leave content hidden if the observer misses an element
+    // (headless screenshots, restored scroll positions, bfcache restores).
+    window.setTimeout(() => document.querySelectorAll(SELECTOR).forEach(reveal), 2500);
+  };
+
+  observe();
+  document.addEventListener('astro:after-swap', observe);
+</script>

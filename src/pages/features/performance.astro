@@ -1,333 +1,206 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PageHeader from '../../components/PageHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
 
-const audioBackends = ['xsynth — 纯软件 SoundFont 合成', 'KDMAPI — Black MIDI 极限低延迟输出', 'winmm — 系统原生兼容回放'];
-const videoFeatures = ['wgpu GPU 加速绘制管线', 'iced 数据驱动声明式 UI', 'Canvas 自定义钢琴卷帘渲染', '跨平台统一 GPU 抽象'];
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Content from '~/components/widgets/Content.astro';
+import Features from '~/components/widgets/Features.astro';
+import Metrics from '~/components/widgets/Metrics.astro';
+import PageHeader from '~/components/widgets/PageHeader.astro';
+
+import { getPermalink } from '~/utils/permalinks';
+
+/**
+ * 渲染器页：音频与视频双渲染管线。
+ *
+ * 组件顺序与首页保持一致：
+ * PageHeader → Content（双通道分流示意）→ Metrics（isDark，SoA 数据指标）
+ * → Content（isReversed，note_store.rs 代码）→ Features（音频 / 视频两组特性）
+ * → CallToAction（引导至 MIDI 后端页）。
+ */
+
+const renderMetrics = [
+  { amount: '8 线程', title: '并行批量移动', description: '批量移动与删除按数据分片并行执行，互不重叠。' },
+  { amount: '10,000+', title: 'SoA 切换阈值', description: '音符数超过阈值后自动采用结构体数组布局。' },
+  { amount: '< 1ms', title: '目标音频延迟', description: 'KDMAPI 后端面向极限事件吞吐优化。' },
+  { amount: 'wgpu', title: '跨平台 GPU 抽象', description: '同一渲染管线覆盖三大桌面平台。' },
+];
+
+/** 数据布局的三条批量操作，与下方代码示例一一对应。 */
+const layoutItems = [
+  {
+    title: '批量移动',
+    description: '按数据分片并行执行，8 线程同时处理互不重叠的区间。',
+    icon: 'tabler:repeat',
+  },
+  {
+    title: '批量删除',
+    description: '单次 O(N) 遍历完成，不需要逐条查找与搬移。',
+    icon: 'tabler:eraser',
+  },
+  {
+    title: '批量插入',
+    description: '预分配容量，插入过程不触发 realloc。',
+    icon: 'tabler:layers-intersect',
+  },
+];
+
+/** 音频通道（xsynth / KDMAPI / winmm）与视频通道（wgpu / iced / Canvas / 跨平台）。 */
+const renderFeatures = [
+  {
+    title: 'xsynth 纯软件合成',
+    description: '基于 SoundFont 实时渲染，无硬件 MIDI 设备也能获得跨平台一致的音色。',
+    icon: 'tabler:waveform',
+  },
+  {
+    title: 'KDMAPI 极限吞吐',
+    description: '绕过传统 winmm 限制直达驱动，面向 Black MIDI 的高并发事件场景优化。',
+    icon: 'tabler:bolt',
+  },
+  {
+    title: 'winmm 原生兼容',
+    description: '系统级原生 MIDI 输出，兼容性最广，无需额外驱动即可通用回放。',
+    icon: 'tabler:brand-windows',
+  },
+  {
+    title: 'wgpu GPU 加速',
+    description: '跨平台 GPU 绘制管线，音符与网格的渲染批次经过合并优化，降低 CPU 开销。',
+    icon: 'tabler:gpu',
+  },
+  {
+    title: 'iced 声明式 UI',
+    description: '数据驱动的声明式界面框架，界面状态随音符数据单向同步刷新。',
+    icon: 'tabler:layout-2',
+  },
+  {
+    title: 'Canvas 自定义绘制',
+    description: '钢琴卷帘由 Canvas 级自定义绘制完成，细节控制不受通用组件库限制。',
+    icon: 'tabler:brush',
+  },
+  {
+    title: '跨平台统一抽象',
+    description: 'Windows、macOS 与 Linux 共用同一套渲染管线与后端接口。',
+    icon: 'tabler:devices',
+  },
+];
 ---
 
-<Layout 
-  title="渲染器 - Lumino" 
-  description="Lumino 渲染器涵盖音频（xsynth / KDMAPI / winmm）与视频（wgpu GPU 加速）两大通道，为创作提供完整的回放与可视化链路。"
+<PageLayout
+  metadata={{
+    title: '渲染器',
+    description:
+      'Lumino 渲染器由音频与视频双管线构成：音频侧经 xsynth、KDMAPI 与 winmm 输出低延迟回放，视频侧基于 wgpu 与 iced 完成 GPU 加速可视化与钢琴卷帘绘制，跨平台一致。',
+  }}
 >
-  <Header />
-  <main>
-    <PageHeader
-      tag="Renderer"
-      title="渲染器"
-      description="音频与视频双通道渲染引擎，从回放到可视化，覆盖创作流程的每一个输出环节。"
-    />
+  <PageHeader
+    badge="双通道渲染"
+    tagline="Renderer"
+    title="渲染器"
+    subtitle="音频与视频双通道渲染引擎：音频通道负责低延迟回放，视频通道负责 GPU 加速可视化，覆盖创作流程的每一个输出环节。"
+  />
 
-    <section class="content-section">
-      <div class="container">
-        <div class="renderer-intro">
-          <div class="intro-text">
-            <span class="tag">Dual-channel</span>
-            <h2 class="section-title">音频 + 视频<br/><span class="accent-text">双渲染管线</span></h2>
-            <p class="lead">
-              Lumino 渲染器不是单一模块，而是由音频输出子系统与视频可视化子系统协同构成的完整渲染管线。编辑器的每一次修改都能通过音频通道即时聆听、通过视频通道实时反馈。
-            </p>
-          </div>
-          <div class="renderer-graphic">
-            <div class="renderer-flow">
-              <div class="flow-box editor-flow">Editor</div>
-              <div class="flow-arrow">
-                <span></span>
-              </div>
-              <div class="flow-split">
-                <div class="flow-box audio">
-                  <span class="label">音频渲染</span>
-                  <span class="sub">xsynth · KDMAPI · winmm</span>
-                </div>
-                <div class="flow-box video">
-                  <span class="label">视频渲染</span>
-                  <span class="sub">wgpu · iced · Canvas</span>
-                </div>
-              </div>
-            </div>
-          </div>
+  <Content
+    tagline="Dual-channel"
+    title="音频 + 视频双渲染管线"
+    subtitle="渲染器不是单一模块，而是由音频输出子系统与视频可视化子系统协同构成的完整管线。"
+    content="编辑器的每一次修改都会同时驱动两条通道：音频通道把音符事件即时送往所选后端，让你立刻听到结果；视频通道在同一帧内重绘音符、网格与视口，让变化立刻可见。两条通道共享同一份音符数据，因此聆听与画面始终同步，不会出现视听错位。"
+  >
+    <div
+      slot="visual"
+      class="overflow-hidden rounded-2xl border border-line bg-slate-950 shadow-xl shadow-slate-950/10"
+    >
+      <div class="flex items-center justify-between border-b border-white/10 bg-slate-900/70 px-4 py-3">
+        <span class="font-mono text-xs tracking-wide text-slate-400">render-pipeline</span>
+        <span class="rounded-full bg-primary/15 px-2 py-0.5 font-mono text-[10px] text-indigo-300">双通道</span>
+      </div>
+      <div class="flex flex-col items-center p-4 sm:p-6">
+        <div class="w-full rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-4 py-3 text-center">
+          <p class="font-mono text-sm font-semibold tracking-wide text-indigo-200">Lumino Editor</p>
+          <p class="mt-1 text-[11px] text-slate-400">音符 / 走带 / 视口状态</p>
         </div>
 
-        <div class="renderer-cols">
-          <div class="renderer-col">
-            <div class="col-header audio-header">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 18V5l12-2v13"/>
-                <circle cx="6" cy="18" r="3"/>
-                <circle cx="18" cy="16" r="3"/>
-              </svg>
-              <h3>音频渲染</h3>
-            </div>
-            <p class="col-desc">
-              多后端 MIDI 音频输出，根据场景自由切换：KDMAPI 专为 Black MIDI 极限事件吞吐优化，xsynth 提供跨平台一致 SoundFont 音色，winmm 作为通用兼容保底方案。
+        <div class="relative h-9 w-full" aria-hidden="true">
+          <div class="absolute top-0 left-1/2 h-3 w-px -translate-x-1/2 bg-white/20"></div>
+          <div class="absolute top-3 right-1/4 left-1/4 h-px bg-white/20"></div>
+          <div class="absolute top-3 left-1/4 h-6 w-px bg-cyan-400/50"></div>
+          <div class="absolute top-3 left-3/4 h-6 w-px bg-indigo-400/50"></div>
+        </div>
+
+        <div class="grid w-full grid-cols-2 gap-3">
+          <div class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3 py-3 text-center">
+            <p class="text-xs font-semibold tracking-wide text-cyan-200">音频渲染</p>
+            <p class="mt-1 font-mono text-[10px] leading-relaxed text-slate-400">
+              xsynth · KDMAPI<br />winmm
             </p>
-            <ul class="feature-list">
-              {audioBackends.map(b => <li>{b}</li>)}
-            </ul>
           </div>
-          <div class="renderer-col">
-            <div class="col-header video-header">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <line x1="8" y1="21" x2="16" y2="21"/>
-                <line x1="12" y1="17" x2="12" y2="21"/>
-              </svg>
-              <h3>视频渲染</h3>
-            </div>
-            <p class="col-desc">
-              基于 wgpu 的跨平台 GPU 渲染管线，iced 数据驱动框架与 Canvas 级自定义绘制相结合。音符、网格、视口滚动的渲染批次经过合并优化，显著降低 CPU 开销，在高密度工程下依旧保持流畅帧率。
+          <div class="rounded-xl border border-indigo-400/25 bg-indigo-500/10 px-3 py-3 text-center">
+            <p class="text-xs font-semibold tracking-wide text-indigo-200">视频渲染</p>
+            <p class="mt-1 font-mono text-[10px] leading-relaxed text-slate-400">
+              wgpu · iced<br />Canvas
             </p>
-            <ul class="feature-list">
-              {videoFeatures.map(f => <li>{f}</li>)}
-            </ul>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </Content>
 
-    <section class="content-section bg-secondary">
-      <div class="container">
-        <div class="section-header">
-          <span class="tag">Data Layout</span>
-          <h2 class="section-title">SoA 批量存储，多线程并行</h2>
-          <p class="section-subtitle">当音符数量超过阈值时自动切换到结构体数组存储，结合多线程并行处理，确保渲染线程永不阻塞。</p>
-        </div>
-        <div class="spec-grid">
-          <div class="spec-card">
-            <div class="value">8 线程</div>
-            <div class="label">并行批量移动</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">10,000+</div>
-            <div class="label">SoA 音符阈值</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">< 1ms</div>
-            <div class="label">目标音频延迟</div>
-          </div>
-          <div class="spec-card">
-            <div class="value">wgpu</div>
-            <div class="label">跨平台 GPU 抽象</div>
-          </div>
-        </div>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="code-title">note_store.rs</span>
-          </div>
-          <pre><code><span class="comment">// 当音符数超过阈值时启用 SoA 批量操作</span>
-<span class="keyword">pub const</span> NOTE_STORE_THRESHOLD: <span class="type">usize</span> = <span class="number">10_000</span>;
+  <Metrics
+    isDark
+    tagline="Data Layout"
+    title="为高密度工程而设计"
+    subtitle="当音符数量超过阈值时自动切换到结构体数组（SoA）存储，结合多线程并行处理，确保渲染线程永不阻塞。"
+    metrics={renderMetrics}
+  />
 
-<span class="comment">// 批量移动：8 线程并行，16M 音符 50% 18ms</span>
-note_store.batch_move_parallel(offset, selected);
-
-<span class="comment">// 批量删除：O(N) 单次遍历</span>
-note_store.delete_selected(indices);
-
-<span class="comment">// 批量插入：无 realloc，1ms/1000 音符</span>
-note_store.insert_bulk(notes);</code></pre>
-        </div>
+  <Content
+    isReversed
+    tagline="SoA 存储"
+    title="批量存储，多线程并行"
+    subtitle="超过 10,000 个音符后切换为列式布局，批量操作退化为对连续内存的顺序遍历。"
+    content="低于阈值时音符以紧凑的结构体数组保存，超过阈值后切换为结构体数组的列式布局（SoA），把音高、起点、时长与力度分别存进独立的连续数组。批量移动、删除与插入因此都能按分片并行执行，渲染线程只读取自己需要的那一列，在高密度工程下依旧保持稳定帧率。"
+    items={layoutItems}
+  >
+    <div
+      slot="visual"
+      class="overflow-hidden rounded-2xl border border-line bg-slate-950 shadow-xl shadow-slate-950/10"
+    >
+      <div class="flex items-center gap-2 border-b border-white/10 bg-slate-900/70 px-4 py-3">
+        <span class="h-2.5 w-2.5 rounded-full bg-rose-500/80"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-amber-400/80"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500/80"></span>
+        <span class="ml-auto font-mono text-xs tracking-wide text-slate-400">note_store.rs</span>
       </div>
-    </section>
-  </main>
-  <Footer />
-</Layout>
+      <pre class="overflow-x-auto p-4 font-mono text-xs leading-6 text-slate-300"><code><span class="text-slate-500">// 当音符数超过阈值时启用 SoA 批量操作</span>
+<span class="text-indigo-300">pub const</span> NOTE_STORE_THRESHOLD: <span class="text-cyan-300">usize</span> = <span class="text-emerald-300">10_000</span>;
 
-<style>
-  .renderer-intro {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
-    align-items: center;
-    margin-bottom: 80px;
-  }
+<span class="text-slate-500">// 批量移动：8 线程并行，16M 音符 50% 18ms</span>
+note_store.<span class="text-indigo-300">batch_move_parallel</span>(offset, selected);
 
-  .intro-text {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+<span class="text-slate-500">// 批量删除：O(N) 单次遍历</span>
+note_store.<span class="text-indigo-300">delete_selected</span>(indices);
 
-  .renderer-graphic {
-    display: flex;
-    justify-content: center;
-  }
+<span class="text-slate-500">// 批量插入：无 realloc，1ms/1000 音符</span>
+note_store.<span class="text-indigo-300">insert_bulk</span>(notes);</code></pre>
+    </div>
+  </Content>
 
-  .renderer-flow {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    max-width: 400px;
-  }
+  <Features
+    tagline="双通道特性"
+    title="音频与视频，各司其职"
+    subtitle="一条通道负责听，一条通道负责看：音频后端决定延迟与音色，渲染管线决定帧率与细节。"
+    items={renderFeatures}
+    columns={2}
+  />
 
-  .flow-box {
-    padding: 16px 28px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    text-align: center;
-  }
-
-  .editor-flow {
-    background: var(--accent-gradient);
-    color: #0a0a0a;
-    width: 100%;
-  }
-
-  .flow-arrow span {
-    display: block;
-    width: 2px;
-    height: 24px;
-    background: var(--copper);
-    margin: 0 auto;
-  }
-
-  .flow-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .flow-box.audio {
-    background: rgba(184, 115, 51, 0.1);
-    border: 1px solid rgba(184, 115, 51, 0.3);
-    color: var(--gold-light);
-  }
-
-  .flow-box.video {
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    color: var(--gold);
-  }
-
-  .flow-box .label { display: block; }
-  .flow-box .sub { display: block; font-size: 0.75rem; opacity: 0.7; margin-top: 4px; }
-
-  .renderer-cols {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-  }
-
-  .renderer-col {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 36px;
-  }
-
-  .col-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .col-header svg {
-    width: 32px;
-    height: 32px;
-    padding: 4px;
-    border-radius: 8px;
-  }
-
-  .audio-header svg {
-    background: rgba(184, 115, 51, 0.12);
-    color: var(--copper-light);
-  }
-
-  .video-header svg {
-    background: rgba(212, 175, 55, 0.12);
-    color: var(--gold);
-  }
-
-  .col-header h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-  }
-
-  .col-desc {
-    color: var(--text-secondary);
-    line-height: 1.7;
-    margin-bottom: 20px;
-    font-size: 0.95rem;
-  }
-
-  .bg-secondary {
-    background: var(--bg-secondary);
-  }
-
-  .section-header {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 48px;
-    text-align: center;
-    align-items: center;
-  }
-
-  .code-block {
-    margin-top: 48px;
-    background: #0e0e0e;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  .code-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 18px;
-    background: #161616;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--text-muted);
-  }
-
-  .dot:nth-child(1) { background: #ff5f57; }
-  .dot:nth-child(2) { background: #febc2e; }
-  .dot:nth-child(3) { background: #28c840; }
-
-  .code-title {
-    margin-left: auto;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  pre {
-    margin: 0;
-    padding: 24px;
-    overflow-x: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    line-height: 1.7;
-    color: var(--text-secondary);
-  }
-
-  .comment { color: #6a9955; }
-  .keyword { color: #569cd6; }
-  .type { color: #4ec9b0; }
-  .number { color: #b5cea8; }
-
-  @media (max-width: 900px) {
-    .renderer-intro {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-    .renderer-cols {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+  <CallToAction
+    title="后端决定输出，渲染器决定体验"
+    subtitle="音频通道的具体输出方式由 MIDI 后端决定。了解 KDMAPI、winmm 与 xsynth 的差异，为你的工程选择最合适的后端。"
+    actions={[
+      {
+        text: '查看 MIDI 后端',
+        href: getPermalink('/features/backends'),
+        variant: 'primary',
+        icon: 'tabler:arrow-right',
+      },
+    ]}
+  />
+</PageLayout>

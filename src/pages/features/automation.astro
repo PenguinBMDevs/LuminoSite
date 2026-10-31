@@ -1,218 +1,172 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PageHeader from '../../components/PageHeader.astro';
+import PageLayout from '~/layouts/PageLayout.astro';
 
-const edits = [
-  { type: 'Add', desc: '在指定 tick 处添加新的控制事件，同 tick 会替换旧值。' },
-  { type: 'Move', desc: '将事件移动到新的 tick 与值，保持曲线连续性。' },
-  { type: 'Delete', desc: '按 tick 精确删除目标事件。' },
-  { type: 'CycleShape', desc: '在 Step、Curve 等线段形状之间循环切换。' },
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Content from '~/components/widgets/Content.astro';
+import Features from '~/components/widgets/Features.astro';
+import Features2 from '~/components/widgets/Features2.astro';
+import PageHeader from '~/components/widgets/PageHeader.astro';
+
+import { APP } from '~/config';
+import type { Item } from '~/types';
+import { getPermalink } from '~/utils/permalinks';
+
+/** The four `AutomationEdit` variants exposed by the editor. */
+const editOperations: Array<Item> = [
+  {
+    title: 'Add · 添加',
+    description: '在指定 tick 处添加新的控制事件，同 tick 会替换旧值。',
+    icon: 'tabler:pencil',
+  },
+  {
+    title: 'Move · 移动',
+    description: '将事件移动到新的 tick 与值，保持曲线连续性。',
+    icon: 'tabler:mouse',
+  },
+  {
+    title: 'Delete · 删除',
+    description: '按 tick 精确删除目标事件。',
+    icon: 'tabler:eraser',
+  },
+  {
+    title: 'CycleShape · 切换形状',
+    description: '在 Step、Curve 等线段形状之间循环切换。',
+    icon: 'tabler:repeat',
+  },
 ];
 
-const targets = [
-  { name: 'CC', desc: 'MIDI 控制变更，如音量、表情、踏板等。' },
-  { name: 'Pitch Bend', desc: '弯音轮事件，绘制滑音与颤音。' },
-  { name: 'Channel Pressure', desc: '通道触后，统一控制表情强度。' },
+/** MIDI message families an automation lane can be bound to. */
+const targets: Array<Item> = [
+  {
+    title: 'CC',
+    description: 'MIDI 控制变更，如音量、表情、踏板等。',
+    icon: 'tabler:adjustments',
+  },
+  {
+    title: 'Pitch Bend',
+    description: '弯音轮事件，绘制滑音与颤音。',
+    icon: 'tabler:waveform',
+  },
+  {
+    title: 'Channel Pressure',
+    description: '通道触后，统一控制表情强度。',
+    icon: 'tabler:activity',
+  },
 ];
 ---
 
-<Layout 
-  title="自动化轨道 - Lumino" 
-  description="Lumino 提供 CC、弯音等自动化曲线编辑，支持 Add、Move、Delete、CycleShape 等操作。"
+<PageLayout
+  metadata={{
+    title: '自动化轨道',
+    description:
+      'Lumino 为每条音轨维护独立的 automation lane，所有编辑都以统一的 AutomationEdit 枚举表达，支持 Add、Move、Delete 与 CycleShape 操作。',
+  }}
 >
-  <Header />
-  <main>
-    <PageHeader
-      tag="Automation"
-      title="自动化轨道"
-      description="用曲线控制音乐的动态表情，CC、弯音与通道触后均可可视化编辑。"
-    />
+  <PageHeader
+    tagline="Automation"
+    title="自动化轨道"
+    subtitle="用曲线控制音乐的动态表情，CC、弯音与通道触后均可可视化编辑。"
+  />
 
-    <section class="content-section">
-      <div class="container">
-        <div class="auto-showcase">
-          <div class="auto-visual">
-            <div class="automation-lane">
-              <div class="lane-header">
-                <span class="lane-name">CC 7 - Volume</span>
-                <span class="lane-value">Value</span>
-              </div>
-              <div class="curve-stage">
-                <svg viewBox="0 0 400 160" preserveAspectRatio="none" class="curve-svg">
-                  <defs>
-                    <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="rgba(184, 115, 51, 0.35)"/>
-                      <stop offset="100%" stop-color="rgba(184, 115, 51, 0)"/>
-                    </linearGradient>
-                  </defs>
-                  <path d="M0,120 C80,120 80,40 140,40 C200,40 200,100 260,60 C320,20 360,80 400,30" fill="none" stroke="url(#curveGradient)" stroke-width="2.5" />
-                  <linearGradient id="curveGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stop-color="#b87333"/>
-                    <stop offset="100%" stop-color="#d4af37"/>
-                  </linearGradient>
-                  <path d="M0,120 C80,120 80,40 140,40 C200,40 200,100 260,60 C320,20 360,80 400,30 L400,160 L0,160 Z" fill="url(#curveFill)" />
-                  <circle cx="0" cy="120" r="5" fill="#d4af37"/>
-                  <circle cx="140" cy="40" r="5" fill="#d4af37"/>
-                  <circle cx="260" cy="60" r="5" fill="#d4af37"/>
-                  <circle cx="400" cy="30" r="5" fill="#d4af37"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div class="auto-content">
-            <span class="tag">Automation</span>
-            <h2 class="section-title">曲线控制，<br/><span class="accent-text">精准到每一刻</span></h2>
-            <p class="lead">
-              Lumino 的自动化系统为每条音轨维护独立的 automation lane 列表，所有编辑操作都通过统一的 AutomationEdit 枚举描述，便于撤销、重做与协作同步。
-            </p>
-            <div class="targets">
-              <h4>支持目标</h4>
-              <div class="target-tags">
-                {targets.map(t => (
-                  <div class="target-tag">
-                    <strong>{t.name}</strong>
-                    <span>{t.desc}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+  <Content
+    tagline="Automation Lane"
+    title="曲线控制，精准到每一刻"
+    subtitle="从音量到弯音，把想表达的变化画成一条可以回放的曲线。"
+    content="Lumino 的自动化系统为每条音轨维护独立的 automation lane 列表，所有编辑操作都通过统一的 AutomationEdit 枚举描述。一条 AutomationEdit 对应一次可撤销的动作，因此撤销、重做与协作同步都只需要处理同一种数据结构。"
+  >
+    <div slot="visual" class="rounded-2xl border border-line bg-slate-950 p-4 shadow-xl shadow-slate-950/10">
+      <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <div class="flex min-w-0 items-center gap-2 font-mono text-xs">
+          <span class="shrink-0 text-slate-400">Track 1</span>
+          <span class="shrink-0 text-slate-600">/</span>
+          <span class="truncate text-slate-200">CC 7 - Volume</span>
         </div>
-
-        <div class="edit-types">
-          {edits.map((e) => (
-            <div class="edit-type-card">
-              <span class="edit-name">{e.type}</span>
-              <p>{e.desc}</p>
-            </div>
-          ))}
-        </div>
+        <span class="shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-slate-400">
+          automation lane
+        </span>
       </div>
-    </section>
-  </main>
-  <Footer />
-</Layout>
 
-<style>
-  .auto-showcase {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
-    align-items: center;
-    margin-bottom: 64px;
-  }
+      <div class="mt-3 rounded-xl border border-white/10 bg-slate-900/40 p-3">
+        <svg
+          class="h-auto w-full"
+          viewBox="0 0 400 160"
+          fill="none"
+          role="img"
+          aria-label="CC 7 音量自动化曲线示意图，包含四个控制点"
+        >
+          <defs>
+            <linearGradient id="automation-stroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#818cf8"></stop>
+              <stop offset="100%" stop-color="#22d3ee"></stop>
+            </linearGradient>
+            <linearGradient id="automation-area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.3"></stop>
+              <stop offset="100%" stop-color="#818cf8" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
 
-  .automation-lane {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
+          <g stroke="#94a3b8" stroke-opacity="0.12" stroke-width="1">
+            <line x1="0" y1="40" x2="400" y2="40"></line>
+            <line x1="0" y1="80" x2="400" y2="80"></line>
+            <line x1="0" y1="120" x2="400" y2="120"></line>
+          </g>
 
-  .lane-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px 18px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
+          <path
+            d="M8 120 C80 120 80 40 140 40 C200 40 200 100 260 60 C320 20 360 80 392 30 L392 160 L8 160 Z"
+            fill="url(#automation-area)"></path>
 
-  .lane-name {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+          <path
+            d="M8 120 C80 120 80 40 140 40 C200 40 200 100 260 60 C320 20 360 80 392 30"
+            stroke="url(#automation-stroke)"
+            stroke-width="2.5"
+            stroke-linecap="round"></path>
 
-  .curve-stage {
-    position: relative;
-    height: 180px;
-    padding: 24px;
-  }
+          <circle cx="8" cy="120" r="4.5" fill="#818cf8" stroke="#020617" stroke-width="2"></circle>
+          <circle cx="140" cy="40" r="4.5" fill="#818cf8" stroke="#020617" stroke-width="2"></circle>
+          <circle cx="260" cy="60" r="4.5" fill="#22d3ee" stroke="#020617" stroke-width="2"></circle>
+          <circle cx="392" cy="30" r="4.5" fill="#22d3ee" stroke="#020617" stroke-width="2"></circle>
+        </svg>
+      </div>
 
-  .curve-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
+      <div class="mt-3 flex items-center justify-between gap-2 font-mono text-[10px] text-slate-400">
+        <span>value 0</span>
+        <span class="flex items-center gap-1.5 text-cyan-300">
+          <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+          4 个控制点
+        </span>
+        <span>value 127</span>
+      </div>
+    </div>
+  </Content>
 
-  .auto-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+  <Features2
+    tagline="AutomationEdit"
+    title="四种编辑操作，一种数据结构"
+    subtitle="每一次曲线改动都以统一的 AutomationEdit 枚举描述，撤销、重做与协作同步因此始终一致。"
+    items={editOperations}
+    columns={4}
+  />
 
-  .targets h4 {
-    font-size: 0.875rem;
-    color: var(--gold);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 12px;
-  }
+  <Features
+    tagline="目标控制器"
+    title="三种可绑定的自动化目标"
+    subtitle="自动化 lane 可绑定到不同的 MIDI 消息类型，音量的起伏、滑音的走向与压力的强弱都能被精确刻画。"
+    items={targets}
+    columns={3}
+  />
 
-  .target-tags {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .target-tag {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 16px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-  }
-
-  .target-tag strong {
-    color: var(--text-primary);
-    font-size: 1rem;
-  }
-
-  .target-tag span {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-  }
-
-  .edit-types {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-  }
-
-  .edit-type-card {
-    padding: 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-  }
-
-  .edit-name {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--gold);
-    margin-bottom: 12px;
-    padding: 4px 10px;
-    background: rgba(184, 115, 51, 0.1);
-    border-radius: 6px;
-  }
-
-  .edit-type-card p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 900px) {
-    .auto-showcase {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-  }
-</style>
+  <CallToAction
+    layout="banner"
+    title="让每一个表情都落在曲线上"
+    subtitle="下载 Lumino，在 Windows、macOS 与 Linux 上用自动化车道刻画音量、滑音与压力的细微变化。"
+    actions={[
+      { text: '免费下载', href: APP.releases, variant: 'primary', icon: 'tabler:download', target: '_blank' },
+      {
+        text: '返回功能一览',
+        href: getPermalink('/features'),
+        variant: 'secondary',
+        icon: 'tabler:arrow-right',
+      },
+    ]}
+  />
+</PageLayout>

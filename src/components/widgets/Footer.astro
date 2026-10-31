@@ -1,0 +1,102 @@
+---
+import { Icon } from 'astro-icon/components';
+import Logo from '~/components/Logo.astro';
+
+interface Link {
+  text?: string;
+  href?: string;
+  ariaLabel?: string;
+  icon?: string;
+}
+
+interface LinkGroup {
+  title?: string;
+  links: Array<Link>;
+}
+
+export interface Props {
+  links: Array<LinkGroup>;
+  secondaryLinks?: Array<Link>;
+  socialLinks?: Array<Link>;
+  footNote?: string;
+  theme?: 'light' | 'dark';
+}
+
+const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme = 'light' } = Astro.props;
+---
+
+<footer class:list={[{ dark: theme === 'dark' }, 'relative border-t border-line not-prose']}>
+  <div class="dark:bg-dark absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-7xl px-4 text-default sm:px-6 lg:px-8 dark:text-slate-300">
+    <div class="grid grid-cols-12 gap-4 gap-y-8 py-8 sm:gap-8 md:py-12">
+      <div class="col-span-12 lg:col-span-4">
+        <div class="mb-3">
+          <Logo />
+        </div>
+        <p class="max-w-xs text-sm leading-relaxed text-muted">
+          使用 Rust 构建的新一代 MIDI 编辑器，为 Black MIDI 与高密度音乐创作而生。
+        </p>
+        {
+          secondaryLinks.length > 0 && (
+            <div class="mt-4 flex flex-wrap gap-1 text-sm text-muted">
+              {secondaryLinks.map(({ text, href }, index) => (
+                <>
+                  {index !== 0 && ' · '}
+                  <a class="transition hover:text-heading hover:underline" href={href} set:html={text} />
+                </>
+              ))}
+            </div>
+          )
+        }
+      </div>
+      {
+        links.map(({ title, links: groupLinks }) => (
+          <div class="col-span-6 sm:col-span-4 lg:col-span-2">
+            <div class="mb-3 text-sm font-semibold tracking-wide text-heading uppercase">{title}</div>
+            {groupLinks && groupLinks.length > 0 && (
+              <ul class="text-sm">
+                {groupLinks.map(({ text, href, ariaLabel }) => (
+                  <li class="mb-2">
+                    <a
+                      class="text-muted transition duration-150 ease-in-out hover:text-heading hover:underline"
+                      href={href}
+                      aria-label={ariaLabel}
+                    >
+                      <Fragment set:html={text} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="flex flex-col gap-4 border-t border-line py-6 md:flex-row md:items-center md:justify-between md:py-8">
+      <p class="order-2 text-sm text-muted md:order-1">
+        <Fragment set:html={footNote} />
+      </p>
+      {
+        socialLinks.length > 0 && (
+          <ul class="order-1 flex items-center gap-1 md:order-2">
+            {socialLinks.map(({ ariaLabel, href, text, icon }) => (
+              <li>
+                <a
+                  class="inline-flex items-center rounded-lg p-2.5 text-muted transition hover:bg-surface hover:text-heading focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label={ariaLabel ?? text}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {icon && <Icon name={icon} class="h-5 w-5" />}
+                  <Fragment set:html={text} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</footer>

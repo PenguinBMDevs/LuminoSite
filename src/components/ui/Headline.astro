@@ -1,0 +1,56 @@
+---
+import { twMerge } from 'tailwind-merge';
+
+import type { Headline as HeadlineProps } from '~/types';
+
+export interface Props extends HeadlineProps {
+  /** `center` (default) or `left` aligned on large screens. */
+  align?: 'center' | 'left';
+}
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  classes = {},
+  align = 'center',
+} = Astro.props;
+
+const {
+  container: containerClass = 'max-w-3xl',
+  tagline: taglineClass = '',
+  title: titleClass = 'text-3xl md:text-4xl',
+  subtitle: subtitleClass = 'text-lg',
+} = classes;
+---
+
+{
+  (title || subtitle || tagline) && (
+    <div
+      class={twMerge(
+        'mb-10 md:mb-14',
+        align === 'center' ? 'mx-auto text-center' : 'text-left',
+        containerClass
+      )}
+    >
+      {tagline && (
+        <p
+          class={twMerge('mb-2 text-sm font-bold tracking-widest text-secondary uppercase dark:text-accent', taglineClass)}
+          set:html={tagline}
+        />
+      )}
+      {title && (
+        <h2
+          class={twMerge(
+            'font-heading text-3xl leading-tighter font-bold tracking-tight text-balance text-heading',
+            titleClass
+          )}
+          set:html={title}
+        />
+      )}
+      {subtitle && (
+        <p class={twMerge('mt-4 text-pretty text-muted', subtitleClass)} set:html={subtitle} />
+      )}
+    </div>
+  )
+}

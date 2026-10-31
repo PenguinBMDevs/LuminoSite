@@ -1,0 +1,55 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import Button from '~/components/ui/Button.astro';
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+import type { Features as Props } from '~/types';
+import { getColumnsClass } from '~/utils/utils';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  items = [],
+  columns = 2,
+  defaultIcon = 'tabler:check',
+  id,
+  isDark = false,
+  classes = {},
+} = Astro.props;
+
+const columnsClass = getColumnsClass(columns);
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline} />
+
+  {
+    items.length > 0 && (
+      <div class:list={['mx-auto grid gap-8 md:gap-y-12', columnsClass]}>
+        {items.map(({ title: itemTitle, description, icon, callToAction }, index) => (
+          <div data-animate style={`--animate-delay: ${index * 60}ms`}>
+            <div class="flex max-w-md flex-row gap-4">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                <Icon name={icon || defaultIcon} class="h-5.5 w-5.5" />
+              </div>
+              <div class="min-w-0">
+                {itemTitle && <h3 class="text-lg font-bold text-heading md:text-xl">{itemTitle}</h3>}
+                {description && <p class:list={[{ 'mt-2': itemTitle }, 'text-muted']} set:html={description} />}
+                {
+                  callToAction && (
+                    <div class:list={[{ 'mt-3': itemTitle || description }]}>
+                      <Button variant="link" {...callToAction} />
+                    </div>
+                  )
+                }
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+</WidgetWrapper>

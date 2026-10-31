@@ -1,0 +1,30 @@
+---
+import { UI } from '~/config';
+
+/**
+ * Applies the colour mode before the first paint so the page never flashes.
+ * The stored preference wins, then the configured default, then the OS setting.
+ */
+---
+
+<script is:inline define:vars={{ defaultTheme: UI.theme }}>
+  (() => {
+    const root = document.documentElement;
+    root.classList.add('js');
+
+    const STORAGE_KEY = 'aw-color-mode';
+    const forced = { 'light:only': 'light', 'dark:only': 'dark' }[defaultTheme];
+    let stored = null;
+    try {
+      stored = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      // Private mode / blocked storage: fall back to the configured theme.
+    }
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const mode = forced || stored || (defaultTheme === 'system' ? (prefersDark ? 'dark' : 'light') : defaultTheme);
+
+    root.classList.toggle('dark', mode === 'dark');
+    root.style.colorScheme = mode;
+  })();
+</script>
